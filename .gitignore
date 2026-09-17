@@ -3,3 +3,5 @@ bin/
 obj/
 lib/*.dll
 
+__pycache__/
+.tcli/

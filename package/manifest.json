@@ -1,0 +1,9 @@
+{
+  "name": "Ragnavik_Compatibility",
+  "version_number": "0.1.0",
+  "website_url": "https://www.ragnavik.com",
+  "description": "Compatibility bridges and temporary interoperability fixes for the Ragnavik Valheim modpack.",
+  "dependencies": [
+    "denikson-BepInExPack_Valheim-5.4.2350"
+  ]
+}
