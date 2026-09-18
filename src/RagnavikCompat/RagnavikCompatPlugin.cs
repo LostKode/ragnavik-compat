@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Reflection;
 using BepInEx;
+using BepInEx.Bootstrap;
 using HarmonyLib;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -32,6 +33,14 @@ public sealed class RagnavikCompatPlugin : BaseUnityPlugin
         // The server pack is also installed on clients. Never alter their EpicMMO watcher.
         if (SystemInfo.graphicsDeviceType != GraphicsDeviceType.Null)
             return;
+
+        if (!Chainloader.PluginInfos.TryGetValue("WackyMole.EpicMMOSystem", out var epicMmoPlugin) ||
+            !EpicMmoReloadGuardCompatibility.Supports(epicMmoPlugin.Metadata.Version))
+        {
+            var installedVersion = epicMmoPlugin?.Metadata.Version?.ToString() ?? "not installed";
+            Logger.LogInfo($"EpicMMO reload guard skipped because WackyEpicMMOSystem {installedVersion} is not the supported {EpicMmoReloadGuardCompatibility.SupportedVersion} version.");
+            return;
+        }
 
         var epicMmo = AccessTools.TypeByName("EpicMMOSystem.EpicMMOSystem");
         _readJsonValues = epicMmo == null ? null : AccessTools.Method(epicMmo, "ReadJsonValues");

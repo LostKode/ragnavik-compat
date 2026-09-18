@@ -5,6 +5,12 @@ using System.Reflection.PortableExecutable;
 if (args.Length != 1)
     throw new ArgumentException("Pass the installed EpicMMOSystem.dll for signature verification.");
 
+AssertTrue(EpicMmoReloadGuardCompatibility.Supports(new Version(1, 9, 67)), "supported EpicMMO version");
+AssertFalse(EpicMmoReloadGuardCompatibility.Supports(new Version(1, 9, 66)), "older EpicMMO version");
+AssertFalse(EpicMmoReloadGuardCompatibility.Supports(new Version(1, 9, 68)), "newer EpicMMO version");
+AssertFalse(EpicMmoReloadGuardCompatibility.Supports(null), "missing EpicMMO version");
+Console.WriteLine("PASS: reload guard is restricted to WackyEpicMMOSystem 1.9.67");
+
 using (var input = File.OpenRead(args[0]))
 using (var pe = new PEReader(input))
 {
@@ -68,4 +74,14 @@ static void AssertEqual(string expected, string actual, string label)
 static void AssertDifferent(string expected, string actual, string label)
 {
     if (expected == actual) throw new Exception($"{label} did not change fingerprint");
+}
+
+static void AssertTrue(bool actual, string label)
+{
+    if (!actual) throw new Exception($"{label} was not accepted");
+}
+
+static void AssertFalse(bool actual, string label)
+{
+    if (actual) throw new Exception($"{label} was accepted unexpectedly");
 }
