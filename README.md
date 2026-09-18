@@ -4,12 +4,6 @@ Ragnavik Compatibility contains independently guarded fixes between mods in the 
 
 ## Modules
 
-### MagicRevamp ItemDataManager bridge
-
-The preloader restores the removed four parameter `Inventory.AddItem(ItemData, int, int, int)` overload required by the `ItemDataManager` library bundled with MagicRevamp 1.5.0. It forwards to Valheim 1.0's current five parameter method and supplies the `ZLog.Log` call expected by the legacy Harmony transpiler.
-
-The bridge skips itself if the legacy overload already exists or if the current target API cannot be verified.
-
 ### EpicMMO reload guard
 
 The runtime plugin includes the JSON reload guard migrated from `ragnavik-epicmmo-reload-guard`. On a dedicated server with WackyEpicMMOSystem 1.9.67 present, it coalesces noisy watcher events, ignores metadata only changes, and permits one reload when JSON content or paths actually change. It watches the existing `BepInEx/config/EpicMMOSystem` JSON tree and does not introduce a separate configuration file.
@@ -20,7 +14,6 @@ The module remains inactive on clients, when EpicMMO is absent, when its version
 
 Install the package on both clients and servers as part of the Ragnavik modpack. The archive places:
 
-* `RagnavikCompat.Patcher.dll` in `BepInEx/patchers`
 * `RagnavikCompat.dll` in `BepInEx/plugins/RagnavikCompat`
 
 The affected mods are optional integrations and are therefore not declared as hard Thunderstore dependencies.

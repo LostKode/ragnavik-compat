@@ -17,7 +17,6 @@ required = {
     "icon.png",
     "README.md",
     "CHANGELOG.md",
-    "patchers/RagnavikCompat.Patcher.dll",
     "plugins/RagnavikCompat/RagnavikCompat.dll",
 }
 if not archive.is_file():
