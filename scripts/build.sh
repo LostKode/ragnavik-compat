@@ -7,13 +7,6 @@ if [ "$#" -ne 2 ]; then
 fi
 
 project_dir=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
-mkdir -p "$project_dir/lib"
-cp "$2/BepInEx.dll" "$project_dir/lib/BepInEx.dll"
-cp "$2/Mono.Cecil.dll" "$project_dir/lib/Mono.Cecil.dll"
-
-dotnet build "$project_dir/src/RagnavikCompat.Patcher/RagnavikCompat.Patcher.csproj" \
-  --configuration Release
-
 dotnet build "$project_dir/src/RagnavikCompat/RagnavikCompat.csproj" \
   --configuration Release \
   -p:ValheimManagedDir="$1" \

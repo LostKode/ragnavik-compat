@@ -7,7 +7,7 @@ Every Ragnavik Compatibility release requires a corresponding Ragnavik website b
 3. Run `scripts/package.sh` and `scripts/validate-package.sh`.
 4. Test the packaged DLL in a controlled client and dedicated server profiles with the affected mod versions.
 5. Confirm `lostkode.ragnavik.compat` is present on both clients and servers and remains version checked as a shared plugin.
-6. Rebuild anti-cheat policy from the complete effective client and server manifests. Version check shared mods, put all client-only mods in the extra whitelist, and put all server-only mods in the server-only list.
+6. Rebuild anti-cheat policy from the complete effective client and server manifests. Version check shared mods, put all client-only mods in the extra whitelist, and put all server-only mods in the server-only list. Confirm the retired `LostKode.RagnavikEpicMMOReloadGuard` GUID is absent after migration and do not add `lostkode.ragnavik.compat` to either exception list.
 7. Prepare and review the corresponding Ragnavik website blog post. Include the version, player-visible changes, compatibility notes, and installation or upgrade guidance.
 8. Publish the package and website blog post together.
 9. For a related server deployment, verify live loaded plugin counts and source/runtime plugin parity before calling the deployment complete.

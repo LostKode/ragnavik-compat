@@ -3,12 +3,11 @@ set -eu
 
 project_dir=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 version=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["version_number"])' "$project_dir/package/manifest.json")
-patcher_dll="$project_dir/src/RagnavikCompat.Patcher/bin/Release/netstandard2.0/RagnavikCompat.Patcher.dll"
 runtime_dll="$project_dir/src/RagnavikCompat/bin/Release/netstandard2.1/RagnavikCompat.dll"
 stage="$project_dir/artifacts/package"
 archive="$project_dir/artifacts/LostKode-Ragnavik_Compatibility-$version.zip"
 
-for dll in "$patcher_dll" "$runtime_dll"; do
+for dll in "$runtime_dll"; do
   if [ ! -f "$dll" ]; then
     echo "missing release DLL: $dll; run scripts/build.sh first" >&2
     exit 1
@@ -16,12 +15,11 @@ for dll in "$patcher_dll" "$runtime_dll"; do
 done
 
 rm -rf "$stage"
-mkdir -p "$stage/patchers" "$stage/plugins/RagnavikCompat"
+mkdir -p "$stage/plugins/RagnavikCompat"
 cp "$project_dir/package/manifest.json" "$stage/manifest.json"
 cp "$project_dir/package/icon.png" "$stage/icon.png"
 cp "$project_dir/README.md" "$stage/README.md"
 cp "$project_dir/CHANGELOG.md" "$stage/CHANGELOG.md"
-cp "$patcher_dll" "$stage/patchers/RagnavikCompat.Patcher.dll"
 cp "$runtime_dll" "$stage/plugins/RagnavikCompat/RagnavikCompat.dll"
 
 rm -f "$archive"
