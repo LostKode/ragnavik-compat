@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Prepare TCLI metadata and verify a published Thunderstore release."""
+"""Prepare TCLI metadata and verify a published Hexium package."""
 
 from __future__ import annotations
 
@@ -84,7 +84,7 @@ def prepare(args: argparse.Namespace) -> None:
         'outdir = ".tcli-build"',
         '',
         '[publish]',
-        'repository = "https://thunderstore.io"',
+        f"repository = {quote(args.repository.rstrip('/'))}",
         'communities = ["valheim"]',
         '',
         '[publish.categories]',
@@ -102,19 +102,17 @@ def prepare(args: argparse.Namespace) -> None:
 
 
 def verify(args: argparse.Namespace) -> None:
-    url = f"https://thunderstore.io/api/experimental/package/LostKode/{args.name}/{args.version}/"
+    url = f"https://valheim.hexium.gg/mods/LostKode/{args.name}"
     for attempt in range(1, 13):
         try:
             with urllib.request.urlopen(url, timeout=30) as response:
-                payload = json.load(response)
-            found = payload.get("version_number") or payload.get("version", {}).get("version_number")
-            if found == args.version or payload:
-                print(f"verified LostKode-{args.name}-{args.version} at {url}")
+                if response.status == 200:
+                    print(f"verified LostKode-{args.name}-{args.version} at {url}")
                 return
-        except Exception as error:  # API propagation can briefly return 404.
+        except Exception as error:  # Storefront propagation can briefly return 404.
             print(f"verification attempt {attempt}/12: {error}", file=sys.stderr)
         time.sleep(10)
-    fail(f"Thunderstore did not expose LostKode-{args.name}-{args.version}")
+    fail(f"Hexium did not expose LostKode-{args.name}-{args.version} at {url}")
 
 
 def main() -> None:
@@ -127,11 +125,13 @@ def main() -> None:
     prep.add_argument("--release-id", required=True)
     prep.add_argument("--blog-url", required=True)
     prep.add_argument("--category", action="append", required=True)
+    prep.add_argument("--repository", default="https://hexium.gg")
     prep.add_argument("--output", type=Path, required=True)
     prep.set_defaults(func=prepare)
     check = commands.add_parser("verify")
     check.add_argument("--name", required=True)
     check.add_argument("--version", required=True)
+    check.add_argument("--repository", default="https://hexium.gg")
     check.set_defaults(func=verify)
     args = parser.parse_args()
     args.func(args)
