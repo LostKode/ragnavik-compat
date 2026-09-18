@@ -9,7 +9,7 @@ using UnityEngine.Rendering;
 
 namespace RagnavikCompat;
 
-[BepInPlugin(PluginGuid, "Ragnavik Compatibility", "0.1.0")]
+[BepInPlugin(PluginGuid, "Ragnavik Compatibility", "1.0.0")]
 [BepInDependency("WackyMole.EpicMMOSystem", BepInDependency.DependencyFlags.SoftDependency)]
 public sealed class RagnavikCompatPlugin : BaseUnityPlugin
 {

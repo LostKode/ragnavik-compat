@@ -1,7 +1,6 @@
 # Changelog
 
-## 0.1.0
-
-* Exclude the obsolete MagicRevamp compatibility bridge because the pack now selects MagicPlugin 2.2.0.
-* Include the EpicMMO JSON reload guard for dedicated servers.
-* Disable individual compatibility modules when their expected mod version or API shape is absent.
+| Version | Changes |
+| --- | --- |
+| 1.0.0 | Mark the Compatibility package stable and ship it with the approved Fjord Gate icon. |
+| 0.1.0 | Exclude the obsolete MagicRevamp bridge after the pack selected MagicPlugin 2.2.0. Add the dedicated-server EpicMMO JSON reload guard. Disable individual modules when their expected mod version or API shape is absent. |
