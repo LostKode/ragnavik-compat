@@ -9,8 +9,10 @@ using UnityEngine.Rendering;
 
 namespace RagnavikCompat;
 
-[BepInPlugin(PluginGuid, "Ragnavik Compatibility", "1.0.1")]
+[BepInPlugin(PluginGuid, "Ragnavik Compatibility", "1.0.2")]
 [BepInDependency("WackyMole.EpicMMOSystem", BepInDependency.DependencyFlags.SoftDependency)]
+[BepInDependency("org.bepinex.plugins.afterdeath", BepInDependency.DependencyFlags.SoftDependency)]
+[BepInDependency("org.bepinex.plugins.starvation", BepInDependency.DependencyFlags.SoftDependency)]
 public sealed class RagnavikCompatPlugin : BaseUnityPlugin
 {
     public const string PluginGuid = "lostkode.ragnavik.compat";
@@ -30,6 +32,9 @@ public sealed class RagnavikCompatPlugin : BaseUnityPlugin
 
     private void Awake()
     {
+        _harmony = new Harmony(PluginGuid);
+        EnableAfterdeathStarvationCompatibility();
+
         // The server pack is also installed on clients. Never alter their EpicMMO watcher.
         if (SystemInfo.graphicsDeviceType != GraphicsDeviceType.Null)
             return;
@@ -56,11 +61,42 @@ public sealed class RagnavikCompatPlugin : BaseUnityPlugin
         _folder = Path.Combine(Paths.ConfigPath, "EpicMMOSystem");
         _lastFingerprint = JsonFolderFingerprint.Compute(_folder);
         _instance = this;
-        _harmony = new Harmony(PluginGuid);
         _harmony.Patch(_readJsonValues,
             prefix: new HarmonyMethod(typeof(RagnavikCompatPlugin), nameof(BeforeJsonReload)));
         Logger.LogInfo("EpicMMO JSON reload guard is active on the dedicated server.");
     }
+
+    private void EnableAfterdeathStarvationCompatibility()
+    {
+        Chainloader.PluginInfos.TryGetValue("org.bepinex.plugins.afterdeath", out var afterdeathPlugin);
+        Chainloader.PluginInfos.TryGetValue("org.bepinex.plugins.starvation", out var starvationPlugin);
+        var afterdeathVersion = afterdeathPlugin?.Metadata.Version;
+        var starvationVersion = starvationPlugin?.Metadata.Version;
+
+        if (!AfterdeathStarvationCompatibility.Supports(afterdeathVersion, starvationVersion))
+        {
+            Logger.LogInfo($"Afterdeath starvation guard skipped because the installed versions are Afterdeath {afterdeathVersion?.ToString() ?? "not installed"} and Starvation {starvationVersion?.ToString() ?? "not installed"}; expected {AfterdeathStarvationCompatibility.SupportedAfterdeathVersion} and {AfterdeathStarvationCompatibility.SupportedStarvationVersion}.");
+            return;
+        }
+
+        var damagePlayer = AccessTools.TypeByName("Starvation.Starvation+DamagePlayer");
+        var starvationPrefix = damagePlayer == null
+            ? null
+            : AccessTools.Method(damagePlayer, "Prefix", new[] { typeof(Player), typeof(float), typeof(bool) });
+        if (starvationPrefix == null || starvationPrefix.ReturnType != typeof(void))
+        {
+            Logger.LogInfo("Afterdeath starvation guard skipped because Starvation's expected DamagePlayer.Prefix(Player, float, bool) signature changed. Review its changelog before adapting this module.");
+            return;
+        }
+
+        _harmony!.Patch(starvationPrefix,
+            prefix: new HarmonyMethod(typeof(RagnavikCompatPlugin), nameof(BeforeStarvationDamage)));
+        Logger.LogInfo("Afterdeath starvation guard is active. Spirits no longer take starvation damage.");
+    }
+
+    private static bool BeforeStarvationDamage(Player __0) => AfterdeathStarvationCompatibility.ShouldRunStarvation(
+        __0.m_customData.ContainsKey("Afterdeath Ghost"),
+        __0.IsDead());
 
     private static bool BeforeJsonReload(object __instance, FileSystemEventArgs __1)
     {

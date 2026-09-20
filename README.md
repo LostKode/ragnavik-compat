@@ -4,6 +4,12 @@ Ragnavik Compatibility contains independently guarded fixes between mods in the 
 
 ## Modules
 
+### Afterdeath starvation guard
+
+When Afterdeath 1.0.10 and Starvation 1.0.5 are both installed, the runtime plugin prevents Starvation's health drain routine from running while a player is an Afterdeath spirit. Normal starvation resumes after resurrection.
+
+The module remains inactive when either mod is absent, when either version differs, or when Starvation's expected `DamagePlayer.Prefix(Player, float, bool)` signature is missing.
+
 ### EpicMMO reload guard
 
 The runtime plugin includes the JSON reload guard migrated from `ragnavik-epicmmo-reload-guard`. On a dedicated server with WackyEpicMMOSystem 1.9.67 present, it coalesces noisy watcher events, ignores metadata only changes, and permits one reload when JSON content or paths actually change. It watches the existing `BepInEx/config/EpicMMOSystem` JSON tree and does not introduce a separate configuration file.
