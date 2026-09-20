@@ -4,6 +4,12 @@ Ragnavik Compatibility contains independently guarded fixes between mods in the 
 
 ## Modules
 
+### Epic Loot and MagicPlugin Take All bridge
+
+When Epic Loot 0.14.10 and MagicPlugin 2.2.0 are both installed, the runtime plugin moves all container contents through Valheim's original-item transfer path instead of its coordinate-preserving bulk clone path. This preserves their item data instead of cloning the item into its old container coordinate.
+
+The module remains inactive when either mod is absent, when either version differs, or when Valheim's expected `Inventory.MoveAll(Inventory)` signature is missing.
+
 ### Afterdeath starvation guard
 
 When Afterdeath 1.0.10 and Starvation 1.0.5 are both installed, the runtime plugin prevents Starvation's health drain routine from running while a player is an Afterdeath spirit. Normal starvation resumes after resurrection.
