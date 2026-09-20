@@ -22,6 +22,13 @@ AssertTrue(AfterdeathStarvationCompatibility.ShouldRunStarvation(false, false), 
 AssertTrue(AfterdeathStarvationCompatibility.ShouldRunStarvation(true, true), "dead player");
 Console.WriteLine("PASS: starvation runs normally except while the player is an Afterdeath spirit");
 
+AssertTrue(EpicLootMagicPluginTakeAllCompatibility.Supports(new Version(0, 14, 10), new Version(2, 2, 0)), "supported Epic Loot and MagicPlugin versions");
+AssertFalse(EpicLootMagicPluginTakeAllCompatibility.Supports(new Version(0, 14, 9), new Version(2, 2, 0)), "older Epic Loot version");
+AssertFalse(EpicLootMagicPluginTakeAllCompatibility.Supports(new Version(0, 14, 10), new Version(2, 1, 0)), "older MagicPlugin version");
+AssertFalse(EpicLootMagicPluginTakeAllCompatibility.Supports(null, new Version(2, 2, 0)), "missing Epic Loot version");
+AssertFalse(EpicLootMagicPluginTakeAllCompatibility.Supports(new Version(0, 14, 10), null), "missing MagicPlugin version");
+Console.WriteLine("PASS: Take All bridge is restricted to Epic Loot 0.14.10 and MagicPlugin 2.2.0");
+
 using (var input = File.OpenRead(args[0]))
 using (var pe = new PEReader(input))
 {

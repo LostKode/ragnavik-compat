@@ -2,6 +2,7 @@
 
 | Version | Changes |
 | --- | --- |
+| 1.0.3 | Preserve Epic Loot and MagicPlugin item data by routing all Take All contents through Valheim's original-item transfer path. |
 | 1.0.2 | Prevent Starvation health drain while a player is an Afterdeath spirit. |
 | 1.0.1 | Correct the Hexium installation classification to Client & Server. |
 | 1.0.0 | Mark the Compatibility package stable and ship it with the approved Fjord Gate icon. |

@@ -9,10 +9,12 @@ using UnityEngine.Rendering;
 
 namespace RagnavikCompat;
 
-[BepInPlugin(PluginGuid, "Ragnavik Compatibility", "1.0.2")]
+[BepInPlugin(PluginGuid, "Ragnavik Compatibility", "1.0.3")]
 [BepInDependency("WackyMole.EpicMMOSystem", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("org.bepinex.plugins.afterdeath", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("org.bepinex.plugins.starvation", BepInDependency.DependencyFlags.SoftDependency)]
+[BepInDependency("randyknapp.mods.epicloot", BepInDependency.DependencyFlags.SoftDependency)]
+[BepInDependency("blacks7ar.MagicPlugin", BepInDependency.DependencyFlags.SoftDependency)]
 public sealed class RagnavikCompatPlugin : BaseUnityPlugin
 {
     public const string PluginGuid = "lostkode.ragnavik.compat";
@@ -24,6 +26,7 @@ public sealed class RagnavikCompatPlugin : BaseUnityPlugin
     private static bool _pending;
     private static int _pendingEvents;
     private static float _lastEventAt;
+    private static bool _takeAllBridgeEnabled;
 
     private Harmony? _harmony;
     private MethodInfo? _readJsonValues;
@@ -32,8 +35,10 @@ public sealed class RagnavikCompatPlugin : BaseUnityPlugin
 
     private void Awake()
     {
+        _instance = this;
         _harmony = new Harmony(PluginGuid);
         EnableAfterdeathStarvationCompatibility();
+        EnableEpicLootMagicPluginTakeAllCompatibility();
 
         // The server pack is also installed on clients. Never alter their EpicMMO watcher.
         if (SystemInfo.graphicsDeviceType != GraphicsDeviceType.Null)
@@ -60,10 +65,55 @@ public sealed class RagnavikCompatPlugin : BaseUnityPlugin
 
         _folder = Path.Combine(Paths.ConfigPath, "EpicMMOSystem");
         _lastFingerprint = JsonFolderFingerprint.Compute(_folder);
-        _instance = this;
         _harmony.Patch(_readJsonValues,
             prefix: new HarmonyMethod(typeof(RagnavikCompatPlugin), nameof(BeforeJsonReload)));
         Logger.LogInfo("EpicMMO JSON reload guard is active on the dedicated server.");
+    }
+
+    private void EnableEpicLootMagicPluginTakeAllCompatibility()
+    {
+        Chainloader.PluginInfos.TryGetValue("randyknapp.mods.epicloot", out var epicLootPlugin);
+        Chainloader.PluginInfos.TryGetValue("blacks7ar.MagicPlugin", out var magicPlugin);
+        var epicLootVersion = epicLootPlugin?.Metadata.Version;
+        var magicPluginVersion = magicPlugin?.Metadata.Version;
+
+        if (!EpicLootMagicPluginTakeAllCompatibility.Supports(epicLootVersion, magicPluginVersion))
+        {
+            Logger.LogInfo($"Epic Loot and MagicPlugin Take All bridge skipped because the installed versions are Epic Loot {epicLootVersion?.ToString() ?? "not installed"} and MagicPlugin {magicPluginVersion?.ToString() ?? "not installed"}; expected {EpicLootMagicPluginTakeAllCompatibility.SupportedEpicLootVersion} and {EpicLootMagicPluginTakeAllCompatibility.SupportedMagicPluginVersion}.");
+            return;
+        }
+
+        var moveAll = AccessTools.Method(typeof(Inventory), nameof(Inventory.MoveAll), new[] { typeof(Inventory) });
+        if (moveAll == null || moveAll.ReturnType != typeof(void))
+        {
+            Logger.LogInfo("Epic Loot and MagicPlugin Take All bridge skipped because Valheim's expected Inventory.MoveAll(Inventory) signature changed.");
+            return;
+        }
+
+        _takeAllBridgeEnabled = true;
+        _harmony!.Patch(moveAll,
+            prefix: new HarmonyMethod(typeof(RagnavikCompatPlugin), nameof(BeforeMoveAll)));
+        Logger.LogInfo("Epic Loot and MagicPlugin Take All bridge is active for all container contents.");
+    }
+
+    private static bool BeforeMoveAll(Inventory __instance, Inventory fromInventory)
+    {
+        if (!_takeAllBridgeEnabled || ReferenceEquals(__instance, fromInventory))
+            return true;
+
+        var moved = 0;
+        foreach (var item in fromInventory.GetAllItems().ToArray())
+        {
+            // Vanilla MoveAll first clones each stack into its old source-grid coordinate.
+            // The normal AddItem path moves the original object and safely leaves any
+            // remainder in the source inventory when the destination cannot hold it all.
+            if (__instance.AddItem(item) && fromInventory.RemoveItem(item))
+                moved++;
+        }
+
+        if (moved > 0)
+            _instance?.Logger.LogInfo($"Moved {moved} container stack(s) through the original-item Take All path.");
+        return false;
     }
 
     private void EnableAfterdeathStarvationCompatibility()
@@ -171,5 +221,6 @@ public sealed class RagnavikCompatPlugin : BaseUnityPlugin
             _instance = null;
         _pending = false;
         _pendingEvents = 0;
+        _takeAllBridgeEnabled = false;
     }
 }
