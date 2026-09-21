@@ -16,11 +16,13 @@ done
 
 rm -rf "$stage"
 mkdir -p "$stage/plugins/RagnavikCompat"
+mkdir -p "$stage/config/EpicMMOSystem"
 cp "$project_dir/package/manifest.json" "$stage/manifest.json"
 cp "$project_dir/package/icon.png" "$stage/icon.png"
 cp "$project_dir/README.md" "$stage/README.md"
 cp "$project_dir/CHANGELOG.md" "$stage/CHANGELOG.md"
 cp "$runtime_dll" "$stage/plugins/RagnavikCompat/RagnavikCompat.dll"
+cp "$project_dir/package/config/EpicMMOSystem/Ragnavik_AddedCreatures.json" "$stage/config/EpicMMOSystem/Ragnavik_AddedCreatures.json"
 
 rm -f "$archive"
 python3 - "$stage" "$archive" <<'PY'

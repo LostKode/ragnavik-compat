@@ -2,6 +2,7 @@
 
 | Version | Changes |
 | --- | --- |
+| 1.0.6 | Add EpicMMO levels and experience rewards for the current SeaAnimals, OdinBear, OdinHorse, OdinMounts, BottledNeck, BeeQueen, and GoodestBoy creatures. Tamed offspring and companion creatures display levels without granting exploitable experience. |
 | 1.0.5 | Send coins collected with Take All directly into CurrencyPocket while leaving other container contents on the normal transfer path. |
 | 1.0.4 | Restore the Take All compatibility bridge for MagicPlugin 2.2.1 and the dedicated-server JSON reload guard for WackyEpicMMOSystem 1.9.68. |
 | 1.0.3 | Preserve Epic Loot and MagicPlugin item data by routing all Take All contents through Valheim's original-item transfer path. |

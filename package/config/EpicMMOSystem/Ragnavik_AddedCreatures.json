@@ -1,0 +1,45 @@
+[
+  { "name": "SA_HumboldtSquid", "minExp": 250, "maxExp": 350, "level": 30 },
+  { "name": "SA_LeatherbackSeaTurtle", "minExp": 200, "maxExp": 300, "level": 28 },
+  { "name": "SA_RightWhale", "minExp": 350, "maxExp": 500, "level": 30 },
+  { "name": "SA_WhaleShark", "minExp": 300, "maxExp": 450, "level": 30 },
+  { "name": "SA_BlueShark", "minExp": 30, "maxExp": 50, "level": 8 },
+  { "name": "SA_HammerHeadShark", "minExp": 350, "maxExp": 450, "level": 52 },
+  { "name": "SA_TigerShark", "minExp": 450, "maxExp": 600, "level": 62 },
+
+  { "name": "MidgardBear", "minExp": 250, "maxExp": 400, "level": 25 },
+  { "name": "MidgardBear_Black", "minExp": 50, "maxExp": 80, "level": 10 },
+  { "name": "MidgardBear_Polar", "minExp": 700, "maxExp": 900, "level": 48 },
+  { "name": "MidgardBear_cub", "minExp": 0, "maxExp": 0, "level": 20 },
+  { "name": "MidgardBear_black_cub", "minExp": 0, "maxExp": 0, "level": 7 },
+  { "name": "MidgardBear_polar_cub", "minExp": 0, "maxExp": 0, "level": 42 },
+
+  { "name": "rae_OdinHorse", "minExp": 30, "maxExp": 50, "level": 8 },
+
+  { "name": "OM_ElephantWar01", "minExp": 700, "maxExp": 900, "level": 35 },
+  { "name": "OM_ElephantWar02", "minExp": 700, "maxExp": 900, "level": 35 },
+  { "name": "OM_ElephantWar03", "minExp": 700, "maxExp": 900, "level": 35 },
+  { "name": "OM_CreatureFire", "minExp": 300, "maxExp": 450, "level": 25 },
+  { "name": "OM_CreatureIce", "minExp": 550, "maxExp": 700, "level": 45 },
+  { "name": "OM_CreatureToxic", "minExp": 400, "maxExp": 550, "level": 35 },
+  { "name": "OM_UndeadHorse_Rotten", "minExp": 350, "maxExp": 500, "level": 25 },
+  { "name": "OM_UndeadHorse_Fire", "minExp": 450, "maxExp": 600, "level": 30 },
+  { "name": "OM_UndeadHorse_Toxic", "minExp": 500, "maxExp": 650, "level": 38 },
+  { "name": "OM_UndeadHorse_Ice", "minExp": 650, "maxExp": 800, "level": 48 },
+
+  { "name": "Bestest_Pup", "minExp": 0, "maxExp": 0, "level": 10 },
+  { "name": "BestestDog", "minExp": 0, "maxExp": 0, "level": 20 },
+
+  { "name": "PetNeck", "minExp": 0, "maxExp": 0, "level": 5 },
+  { "name": "BabySpiritNeck", "minExp": 0, "maxExp": 0, "level": 15 },
+  { "name": "BabyFrostNeck", "minExp": 0, "maxExp": 0, "level": 40 },
+  { "name": "BabyFlameNeck", "minExp": 0, "maxExp": 0, "level": 30 },
+  { "name": "BabyTarNeck", "minExp": 0, "maxExp": 0, "level": 50 },
+  { "name": "WildSpiritNeck", "minExp": 100, "maxExp": 150, "level": 20 },
+  { "name": "WildFrostNeck", "minExp": 250, "maxExp": 350, "level": 42 },
+  { "name": "WildFlameNeck", "minExp": 300, "maxExp": 450, "level": 32 },
+  { "name": "WildTarNeck", "minExp": 350, "maxExp": 450, "level": 52 },
+  { "name": "WildColossalNeck", "minExp": 700, "maxExp": 900, "level": 65 },
+
+  { "name": "BeeQueen", "minExp": 200, "maxExp": 300, "level": 18 }
+]
