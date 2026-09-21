@@ -2,8 +2,8 @@ using RagnavikCompat;
 using System.Reflection.Metadata;
 using System.Reflection.PortableExecutable;
 
-if (args.Length != 3)
-    throw new ArgumentException("Pass the installed EpicMMOSystem.dll, Afterdeath.dll and Starvation.dll for signature verification.");
+if (args.Length != 4)
+    throw new ArgumentException("Pass the installed EpicMMOSystem.dll, Afterdeath.dll, Starvation.dll and CurrencyPocket.dll for signature verification.");
 
 AssertTrue(EpicMmoReloadGuardCompatibility.Supports(new Version(1, 9, 68)), "supported EpicMMO version");
 AssertFalse(EpicMmoReloadGuardCompatibility.Supports(new Version(1, 9, 67)), "older EpicMMO version");
@@ -28,6 +28,17 @@ AssertFalse(EpicLootMagicPluginTakeAllCompatibility.Supports(new Version(0, 14, 
 AssertFalse(EpicLootMagicPluginTakeAllCompatibility.Supports(null, new Version(2, 2, 1)), "missing Epic Loot version");
 AssertFalse(EpicLootMagicPluginTakeAllCompatibility.Supports(new Version(0, 14, 10), null), "missing MagicPlugin version");
 Console.WriteLine("PASS: Take All bridge is restricted to Epic Loot 0.14.10 and MagicPlugin 2.2.1");
+
+AssertTrue(CurrencyPocketTakeAllCompatibility.Supports(new Version(1, 0, 15)), "supported CurrencyPocket version");
+AssertFalse(CurrencyPocketTakeAllCompatibility.Supports(new Version(1, 0, 14)), "older CurrencyPocket version");
+AssertFalse(CurrencyPocketTakeAllCompatibility.Supports(new Version(1, 0, 16)), "newer CurrencyPocket version");
+AssertFalse(CurrencyPocketTakeAllCompatibility.Supports(null), "missing CurrencyPocket version");
+AssertTrue(CurrencyPocketTakeAllCompatibility.IsCoin("$item_coins", 1), "positive coin stack");
+AssertFalse(CurrencyPocketTakeAllCompatibility.IsCoin("$item_coins", 0), "empty coin stack");
+AssertFalse(CurrencyPocketTakeAllCompatibility.IsCoin("$item_amber", 1), "non-coin valuable");
+AssertTrue(CurrencyPocketTakeAllCompatibility.TryAddBalance(25, 10, out var updatedBalance) && updatedBalance == 35, "coin balance addition");
+AssertFalse(CurrencyPocketTakeAllCompatibility.TryAddBalance(int.MaxValue, 1, out _), "coin balance overflow");
+Console.WriteLine("PASS: CurrencyPocket bridge is restricted to 1.0.15 and accepts only valid coin stacks");
 
 using (var input = File.OpenRead(args[0]))
 using (var pe = new PEReader(input))
@@ -66,6 +77,27 @@ VerifyMethod(
     "Prefix",
     new[] { "__instance", "dt", "forceUpdate" },
     "Starvation 1.0.5 DamagePlayer.Prefix(Player, float, bool) patch point verified");
+VerifyMethod(
+    args[3],
+    "CurrencyPocket",
+    "MiscFunctions",
+    "GetPlayerCoinsFromCustomData",
+    Array.Empty<string>(),
+    "CurrencyPocket 1.0.15 GetPlayerCoinsFromCustomData() contract verified");
+VerifyMethod(
+    args[3],
+    "CurrencyPocket",
+    "MiscFunctions",
+    "UpdatePlayerCustomData",
+    new[] { "coinCount", "player" },
+    "CurrencyPocket 1.0.15 UpdatePlayerCustomData(int, Player) contract verified");
+VerifyMethod(
+    args[3],
+    "CurrencyPocket",
+    "CurrencyPocket",
+    "UpdatePocketUI",
+    Array.Empty<string>(),
+    "CurrencyPocket 1.0.15 UpdatePocketUI() contract verified");
 
 var folder = Path.Combine(Path.GetTempPath(), "ragnavik-epicmmo-guard-" + Guid.NewGuid().ToString("N"));
 Directory.CreateDirectory(folder);

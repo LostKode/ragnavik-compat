@@ -10,5 +10,6 @@
     <Compile Include="../../src/RagnavikCompat/JsonFolderFingerprint.cs" Link="JsonFolderFingerprint.cs" />
     <Compile Include="../../src/RagnavikCompat/AfterdeathStarvationCompatibility.cs" Link="AfterdeathStarvationCompatibility.cs" />
     <Compile Include="../../src/RagnavikCompat/EpicLootMagicPluginTakeAllCompatibility.cs" Link="EpicLootMagicPluginTakeAllCompatibility.cs" />
+    <Compile Include="../../src/RagnavikCompat/CurrencyPocketTakeAllCompatibility.cs" Link="CurrencyPocketTakeAllCompatibility.cs" />
   </ItemGroup>
 </Project>
