@@ -9,12 +9,13 @@ using UnityEngine.Rendering;
 
 namespace RagnavikCompat;
 
-[BepInPlugin(PluginGuid, "Ragnavik Compatibility", "1.0.4")]
+[BepInPlugin(PluginGuid, "Ragnavik Compatibility", "1.0.5")]
 [BepInDependency("WackyMole.EpicMMOSystem", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("org.bepinex.plugins.afterdeath", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("org.bepinex.plugins.starvation", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("randyknapp.mods.epicloot", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("blacks7ar.MagicPlugin", BepInDependency.DependencyFlags.SoftDependency)]
+[BepInDependency("Azumatt.CurrencyPocket", BepInDependency.DependencyFlags.SoftDependency)]
 public sealed class RagnavikCompatPlugin : BaseUnityPlugin
 {
     public const string PluginGuid = "lostkode.ragnavik.compat";
@@ -27,6 +28,11 @@ public sealed class RagnavikCompatPlugin : BaseUnityPlugin
     private static int _pendingEvents;
     private static float _lastEventAt;
     private static bool _takeAllBridgeEnabled;
+    private static bool _takeAllPatchInstalled;
+    private static bool _currencyPocketTakeAllEnabled;
+    private static MethodInfo? _getPocketBalance;
+    private static MethodInfo? _updatePocketBalance;
+    private static MethodInfo? _updatePocketUi;
 
     private Harmony? _harmony;
     private MethodInfo? _readJsonValues;
@@ -39,6 +45,7 @@ public sealed class RagnavikCompatPlugin : BaseUnityPlugin
         _harmony = new Harmony(PluginGuid);
         EnableAfterdeathStarvationCompatibility();
         EnableEpicLootMagicPluginTakeAllCompatibility();
+        EnableCurrencyPocketTakeAllCompatibility();
 
         // The server pack is also installed on clients. Never alter their EpicMMO watcher.
         if (SystemInfo.graphicsDeviceType != GraphicsDeviceType.Null)
@@ -91,19 +98,83 @@ public sealed class RagnavikCompatPlugin : BaseUnityPlugin
         }
 
         _takeAllBridgeEnabled = true;
+        EnsureTakeAllPatch(moveAll);
+        Logger.LogInfo("Epic Loot and MagicPlugin Take All bridge is active for all container contents.");
+    }
+
+    private void EnableCurrencyPocketTakeAllCompatibility()
+    {
+        if (!Chainloader.PluginInfos.TryGetValue("Azumatt.CurrencyPocket", out var currencyPocketPlugin) ||
+            !CurrencyPocketTakeAllCompatibility.Supports(currencyPocketPlugin.Metadata.Version))
+        {
+            var installedVersion = currencyPocketPlugin?.Metadata.Version?.ToString() ?? "not installed";
+            Logger.LogInfo($"CurrencyPocket Take All bridge skipped because CurrencyPocket {installedVersion} is not the supported {CurrencyPocketTakeAllCompatibility.SupportedVersion} version.");
+            return;
+        }
+
+        var miscFunctions = AccessTools.TypeByName("CurrencyPocket.MiscFunctions");
+        var currencyPocket = AccessTools.TypeByName("CurrencyPocket.CurrencyPocket");
+        _getPocketBalance = miscFunctions == null
+            ? null
+            : AccessTools.Method(miscFunctions, "GetPlayerCoinsFromCustomData", Type.EmptyTypes);
+        _updatePocketBalance = miscFunctions == null
+            ? null
+            : AccessTools.Method(miscFunctions, "UpdatePlayerCustomData", new[] { typeof(int), typeof(Player) });
+        _updatePocketUi = currencyPocket == null
+            ? null
+            : AccessTools.Method(currencyPocket, "UpdatePocketUI", Type.EmptyTypes);
+
+        if (_getPocketBalance?.ReturnType != typeof(int) ||
+            _updatePocketBalance?.ReturnType != typeof(void) ||
+            _updatePocketUi?.ReturnType != typeof(void))
+        {
+            Logger.LogInfo("CurrencyPocket Take All bridge skipped because the expected balance or UI methods changed. Review its changelog before adapting this module.");
+            _getPocketBalance = null;
+            _updatePocketBalance = null;
+            _updatePocketUi = null;
+            return;
+        }
+
+        _currencyPocketTakeAllEnabled = true;
+        var moveAll = AccessTools.Method(typeof(Inventory), nameof(Inventory.MoveAll), new[] { typeof(Inventory) });
+        if (moveAll == null || moveAll.ReturnType != typeof(void))
+        {
+            _currencyPocketTakeAllEnabled = false;
+            Logger.LogInfo("CurrencyPocket Take All bridge skipped because Valheim's expected Inventory.MoveAll(Inventory) signature changed.");
+            return;
+        }
+
+        EnsureTakeAllPatch(moveAll);
+        Logger.LogInfo("CurrencyPocket Take All bridge is active. Container coins move directly into the pouch.");
+    }
+
+    private void EnsureTakeAllPatch(MethodInfo moveAll)
+    {
+        if (_takeAllPatchInstalled)
+            return;
+
         _harmony!.Patch(moveAll,
             prefix: new HarmonyMethod(typeof(RagnavikCompatPlugin), nameof(BeforeMoveAll)));
-        Logger.LogInfo("Epic Loot and MagicPlugin Take All bridge is active for all container contents.");
+        _takeAllPatchInstalled = true;
     }
 
     private static bool BeforeMoveAll(Inventory __instance, Inventory fromInventory)
     {
-        if (!_takeAllBridgeEnabled || ReferenceEquals(__instance, fromInventory))
+        if ((!_takeAllBridgeEnabled && !_currencyPocketTakeAllEnabled) || ReferenceEquals(__instance, fromInventory))
             return true;
 
         var moved = 0;
         foreach (var item in fromInventory.GetAllItems().ToArray())
         {
+            if (TryMoveCoinsToCurrencyPocket(__instance, fromInventory, item))
+            {
+                moved++;
+                continue;
+            }
+
+            if (!_takeAllBridgeEnabled)
+                continue;
+
             // Vanilla MoveAll first clones each stack into its old source-grid coordinate.
             // The normal AddItem path moves the original object and safely leaves any
             // remainder in the source inventory when the destination cannot hold it all.
@@ -112,8 +183,60 @@ public sealed class RagnavikCompatPlugin : BaseUnityPlugin
         }
 
         if (moved > 0)
-            _instance?.Logger.LogInfo($"Moved {moved} container stack(s) through the original-item Take All path.");
-        return false;
+            _instance?.Logger.LogInfo($"Moved {moved} container stack(s) through compatible Take All paths.");
+        return !_takeAllBridgeEnabled;
+    }
+
+    private static bool TryMoveCoinsToCurrencyPocket(Inventory destination, Inventory source, ItemDrop.ItemData item)
+    {
+        var localPlayer = Player.m_localPlayer;
+        if (!_currencyPocketTakeAllEnabled || localPlayer == null ||
+            !ReferenceEquals(destination, localPlayer.GetInventory()) ||
+            !CurrencyPocketTakeAllCompatibility.IsCoin(item.m_shared?.m_name, item.m_stack) ||
+            _getPocketBalance == null || _updatePocketBalance == null)
+            return false;
+
+        try
+        {
+            var currentBalance = (int)_getPocketBalance.Invoke(null, null);
+            if (!CurrencyPocketTakeAllCompatibility.TryAddBalance(currentBalance, item.m_stack, out var updatedBalance))
+                return false;
+
+            _updatePocketBalance.Invoke(null, new object?[] { updatedBalance, localPlayer });
+            bool removed;
+            try
+            {
+                removed = source.RemoveItem(item);
+            }
+            catch (Exception error)
+            {
+                _updatePocketBalance.Invoke(null, new object?[] { currentBalance, localPlayer });
+                _instance?.Logger.LogError($"CurrencyPocket Take All could not remove the deposited coin stack; restored the previous pouch balance: {error.GetBaseException().Message}");
+                return false;
+            }
+
+            if (!removed)
+            {
+                _updatePocketBalance.Invoke(null, new object?[] { currentBalance, localPlayer });
+                return false;
+            }
+
+            try
+            {
+                _updatePocketUi?.Invoke(null, null);
+            }
+            catch (Exception error)
+            {
+                _instance?.Logger.LogWarning($"Coins entered CurrencyPocket, but its UI refresh failed: {error.GetBaseException().Message}");
+            }
+
+            return true;
+        }
+        catch (Exception error)
+        {
+            _instance?.Logger.LogError($"CurrencyPocket Take All transfer failed; leaving the coin stack in the container: {error.GetBaseException().Message}");
+            return false;
+        }
     }
 
     private void EnableAfterdeathStarvationCompatibility()
@@ -222,5 +345,10 @@ public sealed class RagnavikCompatPlugin : BaseUnityPlugin
         _pending = false;
         _pendingEvents = 0;
         _takeAllBridgeEnabled = false;
+        _takeAllPatchInstalled = false;
+        _currencyPocketTakeAllEnabled = false;
+        _getPocketBalance = null;
+        _updatePocketBalance = null;
+        _updatePocketUi = null;
     }
 }

@@ -10,6 +10,12 @@ When Epic Loot 0.14.10 and MagicPlugin 2.2.1 are both installed, the runtime plu
 
 The module remains inactive when either mod is absent, when either version differs, or when Valheim's expected `Inventory.MoveAll(Inventory)` signature is missing.
 
+### CurrencyPocket Take All bridge
+
+When CurrencyPocket 1.0.15 is installed on the client, coins transferred with Take All go directly into the local player's coin pouch. Other valuables and ordinary items continue through the normal Take All transfer path.
+
+The module remains inactive when CurrencyPocket is absent, when its version differs, or when its expected balance and UI methods change.
+
 ### Afterdeath starvation guard
 
 When Afterdeath 1.0.10 and Starvation 1.0.5 are both installed, the runtime plugin prevents Starvation's health drain routine from running while a player is an Afterdeath spirit. Normal starvation resumes after resurrection.
