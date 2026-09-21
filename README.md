@@ -28,6 +28,12 @@ When Afterdeath 1.0.10 and Starvation 1.0.5 are both installed, the runtime plug
 
 The module remains inactive when either mod is absent, when either version differs, or when Starvation's expected `DamagePlayer.Prefix(Player, float, bool)` signature is missing.
 
+### Afterdeath spirit travel bridge
+
+When Afterdeath 1.0.10 is installed, spirits can use Valheim teleport transitions. This allows corpse recovery through dungeon entrances and permits ordinary portal travel while in spirit form. Afterdeath continues to control resurrection, spirit movement, exploration, combat, and other interactions.
+
+The module remains inactive when Afterdeath is absent, when its version differs, or when its expected `DisableTeleport.Prefix()` signature changes.
+
 ### EpicMMO reload guard
 
 The runtime plugin includes the JSON reload guard migrated from `ragnavik-epicmmo-reload-guard`. On a dedicated server with WackyEpicMMOSystem 1.9.68 present, it coalesces noisy watcher events, ignores metadata only changes, and permits one reload when JSON content or paths actually change. It watches the existing `BepInEx/config/EpicMMOSystem` JSON tree and does not introduce a separate configuration file.
