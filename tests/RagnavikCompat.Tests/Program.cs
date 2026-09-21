@@ -5,11 +5,11 @@ using System.Reflection.PortableExecutable;
 if (args.Length != 3)
     throw new ArgumentException("Pass the installed EpicMMOSystem.dll, Afterdeath.dll and Starvation.dll for signature verification.");
 
-AssertTrue(EpicMmoReloadGuardCompatibility.Supports(new Version(1, 9, 67)), "supported EpicMMO version");
-AssertFalse(EpicMmoReloadGuardCompatibility.Supports(new Version(1, 9, 66)), "older EpicMMO version");
-AssertFalse(EpicMmoReloadGuardCompatibility.Supports(new Version(1, 9, 68)), "newer EpicMMO version");
+AssertTrue(EpicMmoReloadGuardCompatibility.Supports(new Version(1, 9, 68)), "supported EpicMMO version");
+AssertFalse(EpicMmoReloadGuardCompatibility.Supports(new Version(1, 9, 67)), "older EpicMMO version");
+AssertFalse(EpicMmoReloadGuardCompatibility.Supports(new Version(1, 9, 69)), "newer EpicMMO version");
 AssertFalse(EpicMmoReloadGuardCompatibility.Supports(null), "missing EpicMMO version");
-Console.WriteLine("PASS: reload guard is restricted to WackyEpicMMOSystem 1.9.67");
+Console.WriteLine("PASS: reload guard is restricted to WackyEpicMMOSystem 1.9.68");
 
 AssertTrue(AfterdeathStarvationCompatibility.Supports(new Version(1, 0, 10), new Version(1, 0, 5)), "supported Afterdeath and Starvation versions");
 AssertFalse(AfterdeathStarvationCompatibility.Supports(new Version(1, 0, 9), new Version(1, 0, 5)), "older Afterdeath version");
@@ -22,12 +22,12 @@ AssertTrue(AfterdeathStarvationCompatibility.ShouldRunStarvation(false, false), 
 AssertTrue(AfterdeathStarvationCompatibility.ShouldRunStarvation(true, true), "dead player");
 Console.WriteLine("PASS: starvation runs normally except while the player is an Afterdeath spirit");
 
-AssertTrue(EpicLootMagicPluginTakeAllCompatibility.Supports(new Version(0, 14, 10), new Version(2, 2, 0)), "supported Epic Loot and MagicPlugin versions");
-AssertFalse(EpicLootMagicPluginTakeAllCompatibility.Supports(new Version(0, 14, 9), new Version(2, 2, 0)), "older Epic Loot version");
-AssertFalse(EpicLootMagicPluginTakeAllCompatibility.Supports(new Version(0, 14, 10), new Version(2, 1, 0)), "older MagicPlugin version");
-AssertFalse(EpicLootMagicPluginTakeAllCompatibility.Supports(null, new Version(2, 2, 0)), "missing Epic Loot version");
+AssertTrue(EpicLootMagicPluginTakeAllCompatibility.Supports(new Version(0, 14, 10), new Version(2, 2, 1)), "supported Epic Loot and MagicPlugin versions");
+AssertFalse(EpicLootMagicPluginTakeAllCompatibility.Supports(new Version(0, 14, 9), new Version(2, 2, 1)), "older Epic Loot version");
+AssertFalse(EpicLootMagicPluginTakeAllCompatibility.Supports(new Version(0, 14, 10), new Version(2, 2, 0)), "older MagicPlugin version");
+AssertFalse(EpicLootMagicPluginTakeAllCompatibility.Supports(null, new Version(2, 2, 1)), "missing Epic Loot version");
 AssertFalse(EpicLootMagicPluginTakeAllCompatibility.Supports(new Version(0, 14, 10), null), "missing MagicPlugin version");
-Console.WriteLine("PASS: Take All bridge is restricted to Epic Loot 0.14.10 and MagicPlugin 2.2.0");
+Console.WriteLine("PASS: Take All bridge is restricted to Epic Loot 0.14.10 and MagicPlugin 2.2.1");
 
 using (var input = File.OpenRead(args[0]))
 using (var pe = new PEReader(input))
@@ -49,7 +49,7 @@ using (var pe = new PEReader(input))
         .ToArray();
     if (!parameters.SequenceEqual(new[] { "sender", "e" }))
         throw new Exception("Unexpected EpicMMO watcher parameters: " + string.Join(", ", parameters));
-    Console.WriteLine("PASS: EpicMMO 1.9.67 ReadJsonValues(sender, e) patch point verified");
+    Console.WriteLine("PASS: EpicMMO 1.9.68 ReadJsonValues(sender, e) patch point verified");
 }
 
 VerifyMethod(
