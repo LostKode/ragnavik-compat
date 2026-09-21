@@ -16,6 +16,12 @@ When CurrencyPocket 1.0.15 is installed on the client, coins transferred with Ta
 
 The module remains inactive when CurrencyPocket is absent, when its version differs, or when its expected balance and UI methods change.
 
+### EpicMMO added creature coverage
+
+The package installs an additional EpicMMO creature database for the creature prefabs currently supplied by SeaAnimals 0.3.8, OdinBear 1.4.9, OdinHorse 1.7.2, OdinMounts 0.1.5, BottledNeck 0.3.3, BeeQueen 1.1.2, and GoodestBoy 0.3.7. Levels follow each creature's configured biome and combat strength. Wild creatures award experience, while companion creatures and offspring use zero experience values to prevent farming pets for progression.
+
+The database uses exact prefab names from the installed assemblies and remains harmless when an owning mod is absent. Review and update the mappings whenever one of those creature mods changes version.
+
 ### Afterdeath starvation guard
 
 When Afterdeath 1.0.10 and Starvation 1.0.5 are both installed, the runtime plugin prevents Starvation's health drain routine from running while a player is an Afterdeath spirit. Normal starvation resumes after resurrection.
