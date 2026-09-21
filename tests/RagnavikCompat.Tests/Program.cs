@@ -22,6 +22,15 @@ AssertTrue(AfterdeathStarvationCompatibility.ShouldRunStarvation(false, false), 
 AssertTrue(AfterdeathStarvationCompatibility.ShouldRunStarvation(true, true), "dead player");
 Console.WriteLine("PASS: starvation runs normally except while the player is an Afterdeath spirit");
 
+AssertTrue(AfterdeathTeleportCompatibility.Supports(new Version(1, 0, 10)), "supported Afterdeath teleport version");
+AssertFalse(AfterdeathTeleportCompatibility.Supports(new Version(1, 0, 9)), "older Afterdeath teleport version");
+AssertFalse(AfterdeathTeleportCompatibility.Supports(new Version(1, 0, 11)), "newer Afterdeath teleport version");
+AssertFalse(AfterdeathTeleportCompatibility.Supports(null), "missing Afterdeath teleport version");
+AssertTrue(AfterdeathTeleportCompatibility.ShouldAllowTeleport(true, false), "living Afterdeath spirit teleport");
+AssertFalse(AfterdeathTeleportCompatibility.ShouldAllowTeleport(false, false), "ordinary living player teleport override");
+AssertFalse(AfterdeathTeleportCompatibility.ShouldAllowTeleport(true, true), "dead player teleport override");
+Console.WriteLine("PASS: teleport override is restricted to living Afterdeath spirits on Afterdeath 1.0.10");
+
 AssertTrue(EpicLootMagicPluginTakeAllCompatibility.Supports(new Version(0, 14, 10), new Version(2, 2, 1)), "supported Epic Loot and MagicPlugin versions");
 AssertFalse(EpicLootMagicPluginTakeAllCompatibility.Supports(new Version(0, 14, 9), new Version(2, 2, 1)), "older Epic Loot version");
 AssertFalse(EpicLootMagicPluginTakeAllCompatibility.Supports(new Version(0, 14, 10), new Version(2, 2, 0)), "older MagicPlugin version");
@@ -70,6 +79,13 @@ VerifyMethod(
     "IsGhost",
     new[] { "player" },
     "Afterdeath 1.0.10 Utils.IsGhost(Player) patch contract verified");
+VerifyMethod(
+    args[1],
+    "",
+    "DisableTeleport",
+    "Prefix",
+    Array.Empty<string>(),
+    "Afterdeath 1.0.10 DisableTeleport.Prefix() patch contract verified");
 VerifyMethod(
     args[2],
     "",

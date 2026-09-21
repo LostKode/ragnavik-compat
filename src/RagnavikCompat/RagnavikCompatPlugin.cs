@@ -9,7 +9,7 @@ using UnityEngine.Rendering;
 
 namespace RagnavikCompat;
 
-[BepInPlugin(PluginGuid, "Ragnavik Compatibility", "1.0.6")]
+[BepInPlugin(PluginGuid, "Ragnavik Compatibility", "1.0.7")]
 [BepInDependency("WackyMole.EpicMMOSystem", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("org.bepinex.plugins.afterdeath", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("org.bepinex.plugins.starvation", BepInDependency.DependencyFlags.SoftDependency)]
@@ -44,6 +44,7 @@ public sealed class RagnavikCompatPlugin : BaseUnityPlugin
         _instance = this;
         _harmony = new Harmony(PluginGuid);
         EnableAfterdeathStarvationCompatibility();
+        EnableAfterdeathTeleportCompatibility();
         EnableEpicLootMagicPluginTakeAllCompatibility();
         EnableCurrencyPocketTakeAllCompatibility();
 
@@ -270,6 +271,43 @@ public sealed class RagnavikCompatPlugin : BaseUnityPlugin
     private static bool BeforeStarvationDamage(Player __0) => AfterdeathStarvationCompatibility.ShouldRunStarvation(
         __0.m_customData.ContainsKey("Afterdeath Ghost"),
         __0.IsDead());
+
+    private void EnableAfterdeathTeleportCompatibility()
+    {
+        if (!Chainloader.PluginInfos.TryGetValue("org.bepinex.plugins.afterdeath", out var afterdeathPlugin) ||
+            !AfterdeathTeleportCompatibility.Supports(afterdeathPlugin.Metadata.Version))
+        {
+            var installedVersion = afterdeathPlugin?.Metadata.Version?.ToString() ?? "not installed";
+            Logger.LogInfo($"Afterdeath spirit teleport bridge skipped because Afterdeath {installedVersion} is not the supported {AfterdeathTeleportCompatibility.SupportedAfterdeathVersion} version.");
+            return;
+        }
+
+        var disableTeleport = AccessTools.TypeByName("Afterdeath.BlockStuff+DisableTeleport");
+        var afterdeathPrefix = disableTeleport == null
+            ? null
+            : AccessTools.Method(disableTeleport, "Prefix", Type.EmptyTypes);
+        if (afterdeathPrefix == null || afterdeathPrefix.ReturnType != typeof(bool))
+        {
+            Logger.LogInfo("Afterdeath spirit teleport bridge skipped because Afterdeath's expected DisableTeleport.Prefix() signature changed. Review its changelog before adapting this module.");
+            return;
+        }
+
+        _harmony!.Patch(afterdeathPrefix,
+            prefix: new HarmonyMethod(typeof(RagnavikCompatPlugin), nameof(BeforeAfterdeathTeleportBlock)));
+        Logger.LogInfo("Afterdeath spirit teleport bridge is active. Spirits can use portals and dungeon transitions.");
+    }
+
+    private static bool BeforeAfterdeathTeleportBlock(ref bool __result)
+    {
+        var player = Player.m_localPlayer;
+        if (player == null || !AfterdeathTeleportCompatibility.ShouldAllowTeleport(
+                player.m_customData.ContainsKey("Afterdeath Ghost"),
+                player.IsDead()))
+            return true;
+
+        __result = true;
+        return false;
+    }
 
     private static bool BeforeJsonReload(object __instance, FileSystemEventArgs __1)
     {
