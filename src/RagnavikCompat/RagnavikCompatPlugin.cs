@@ -9,7 +9,7 @@ using UnityEngine.Rendering;
 
 namespace RagnavikCompat;
 
-[BepInPlugin(PluginGuid, "Ragnavik Compatibility", "1.0.8")]
+[BepInPlugin(PluginGuid, "Ragnavik Compatibility", "1.0.9")]
 [BepInDependency("WackyMole.EpicMMOSystem", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("org.bepinex.plugins.afterdeath", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("org.bepinex.plugins.starvation", BepInDependency.DependencyFlags.SoftDependency)]
@@ -88,7 +88,7 @@ public sealed class RagnavikCompatPlugin : BaseUnityPlugin
 
         if (!EpicLootMagicPluginTakeAllCompatibility.Supports(epicLootVersion, magicPluginVersion))
         {
-            Logger.LogInfo($"Epic Loot and MagicPlugin Take All bridge skipped because the installed versions are Epic Loot {epicLootVersion?.ToString() ?? "not installed"} and MagicPlugin {magicPluginVersion?.ToString() ?? "not installed"}; expected {EpicLootMagicPluginTakeAllCompatibility.SupportedEpicLootVersion} and {EpicLootMagicPluginTakeAllCompatibility.SupportedMagicPluginVersion}.");
+            Logger.LogInfo($"Epic Loot and MagicPlugin Take All bridge skipped because both mods are required; installed versions are Epic Loot {epicLootVersion?.ToString() ?? "not installed"} and MagicPlugin {magicPluginVersion?.ToString() ?? "not installed"}.");
             return;
         }
 

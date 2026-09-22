@@ -42,12 +42,12 @@ AssertFalse(AfterdeathNearestBedCompatibility.ShouldUseBed(false, 0, 0, 100, 0, 
 AssertTrue(AfterdeathNearestBedCompatibility.ShouldUseBed(true, 100, 100, 0, 0, 90, 90), "XZ distance from non-origin death");
 Console.WriteLine("PASS: Afterdeath selects a valid bed only when it is strictly closer than Skathi");
 
-AssertTrue(EpicLootMagicPluginTakeAllCompatibility.Supports(new Version(0, 14, 10), new Version(2, 2, 1)), "supported Epic Loot and MagicPlugin versions");
-AssertFalse(EpicLootMagicPluginTakeAllCompatibility.Supports(new Version(0, 14, 9), new Version(2, 2, 1)), "older Epic Loot version");
-AssertFalse(EpicLootMagicPluginTakeAllCompatibility.Supports(new Version(0, 14, 10), new Version(2, 2, 0)), "older MagicPlugin version");
+AssertTrue(EpicLootMagicPluginTakeAllCompatibility.Supports(new Version(0, 14, 11), new Version(2, 2, 1)), "supported Epic Loot and MagicPlugin versions");
+AssertTrue(EpicLootMagicPluginTakeAllCompatibility.Supports(new Version(0, 14, 10), new Version(2, 2, 1)), "older Epic Loot version");
+AssertTrue(EpicLootMagicPluginTakeAllCompatibility.Supports(new Version(0, 15, 0), new Version(2, 3, 0)), "future mod versions");
 AssertFalse(EpicLootMagicPluginTakeAllCompatibility.Supports(null, new Version(2, 2, 1)), "missing Epic Loot version");
-AssertFalse(EpicLootMagicPluginTakeAllCompatibility.Supports(new Version(0, 14, 10), null), "missing MagicPlugin version");
-Console.WriteLine("PASS: Take All bridge is restricted to Epic Loot 0.14.10 and MagicPlugin 2.2.1");
+AssertFalse(EpicLootMagicPluginTakeAllCompatibility.Supports(new Version(0, 14, 11), null), "missing MagicPlugin version");
+Console.WriteLine("PASS: Take All bridge accepts any installed Epic Loot and MagicPlugin versions");
 
 AssertTrue(CurrencyPocketTakeAllCompatibility.Supports(new Version(1, 0, 15)), "supported CurrencyPocket version");
 AssertFalse(CurrencyPocketTakeAllCompatibility.Supports(new Version(1, 0, 14)), "older CurrencyPocket version");

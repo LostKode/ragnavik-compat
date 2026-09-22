@@ -6,9 +6,9 @@ Ragnavik Compatibility contains independently guarded fixes between mods in the 
 
 ### Epic Loot and MagicPlugin Take All bridge
 
-When Epic Loot 0.14.10 and MagicPlugin 2.2.1 are both installed, the runtime plugin moves all container contents through Valheim's original-item transfer path instead of its coordinate-preserving bulk clone path. This preserves their item data instead of cloning the item into its old container coordinate.
+When Epic Loot and MagicPlugin are both installed, the runtime plugin moves all container contents through Valheim's original-item transfer path instead of its coordinate-preserving bulk clone path. This preserves their item data instead of cloning the item into its old container coordinate. Mod version changes do not disable the bridge; it remains guarded by Valheim's expected `Inventory.MoveAll(Inventory)` signature.
 
-The module remains inactive when either mod is absent, when either version differs, or when Valheim's expected `Inventory.MoveAll(Inventory)` signature is missing.
+The module remains inactive when either mod is absent or when Valheim's expected `Inventory.MoveAll(Inventory)` signature is missing.
 
 ### CurrencyPocket Take All bridge
 
