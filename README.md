@@ -34,6 +34,12 @@ When Afterdeath 1.0.10 is installed, spirits can use Valheim teleport transition
 
 The module remains inactive when Afterdeath is absent, when its version differs, or when its expected `DisableTeleport.Prefix()` signature changes.
 
+### Afterdeath nearest-bed spawn
+
+When Afterdeath 1.0.10 is installed and a player has a valid bed spawn, the runtime plugin compares that bed with Afterdeath's nearest Skathi using horizontal distance from the death point. The player respawns at the bed only when it is strictly closer; equal distances continue to use Skathi.
+
+The module remains inactive when Afterdeath is absent, when its version differs, or when its expected `Utils.GetClosestLocation(Vector3)` signature changes. Invalid or destroyed bed spawns continue through Valheim's normal validation and do not replace Skathi.
+
 ### EpicMMO reload guard
 
 The runtime plugin includes the JSON reload guard migrated from `ragnavik-epicmmo-reload-guard`. On a dedicated server with WackyEpicMMOSystem 1.9.68 present, it coalesces noisy watcher events, ignores metadata only changes, and permits one reload when JSON content or paths actually change. It watches the existing `BepInEx/config/EpicMMOSystem` JSON tree and does not introduce a separate configuration file.

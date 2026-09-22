@@ -31,6 +31,17 @@ AssertFalse(AfterdeathTeleportCompatibility.ShouldAllowTeleport(false, false), "
 AssertFalse(AfterdeathTeleportCompatibility.ShouldAllowTeleport(true, true), "dead player teleport override");
 Console.WriteLine("PASS: teleport override is restricted to living Afterdeath spirits on Afterdeath 1.0.10");
 
+AssertTrue(AfterdeathNearestBedCompatibility.Supports(new Version(1, 0, 10)), "supported Afterdeath nearest-bed version");
+AssertFalse(AfterdeathNearestBedCompatibility.Supports(new Version(1, 0, 9)), "older Afterdeath nearest-bed version");
+AssertFalse(AfterdeathNearestBedCompatibility.Supports(new Version(1, 0, 11)), "newer Afterdeath nearest-bed version");
+AssertFalse(AfterdeathNearestBedCompatibility.Supports(null), "missing Afterdeath nearest-bed version");
+AssertTrue(AfterdeathNearestBedCompatibility.ShouldUseBed(true, 0, 0, 100, 0, 25, 0), "closer bed");
+AssertFalse(AfterdeathNearestBedCompatibility.ShouldUseBed(true, 0, 0, 25, 0, 100, 0), "closer Skathi");
+AssertFalse(AfterdeathNearestBedCompatibility.ShouldUseBed(true, 0, 0, 50, 0, 0, 50), "equal distance keeps Skathi");
+AssertFalse(AfterdeathNearestBedCompatibility.ShouldUseBed(false, 0, 0, 100, 0, 25, 0), "missing valid bed");
+AssertTrue(AfterdeathNearestBedCompatibility.ShouldUseBed(true, 100, 100, 0, 0, 90, 90), "XZ distance from non-origin death");
+Console.WriteLine("PASS: Afterdeath selects a valid bed only when it is strictly closer than Skathi");
+
 AssertTrue(EpicLootMagicPluginTakeAllCompatibility.Supports(new Version(0, 14, 10), new Version(2, 2, 1)), "supported Epic Loot and MagicPlugin versions");
 AssertFalse(EpicLootMagicPluginTakeAllCompatibility.Supports(new Version(0, 14, 9), new Version(2, 2, 1)), "older Epic Loot version");
 AssertFalse(EpicLootMagicPluginTakeAllCompatibility.Supports(new Version(0, 14, 10), new Version(2, 2, 0)), "older MagicPlugin version");
@@ -86,6 +97,14 @@ VerifyMethod(
     "Prefix",
     Array.Empty<string>(),
     "Afterdeath 1.0.10 DisableTeleport.Prefix() patch contract verified");
+VerifyMethod(
+    args[1],
+    "Afterdeath",
+    "Utils",
+    "GetClosestLocation",
+    new[] { "position" },
+    "Afterdeath 1.0.10 Utils.GetClosestLocation(Vector3) patch contract verified");
+
 VerifyMethod(
     args[2],
     "",
