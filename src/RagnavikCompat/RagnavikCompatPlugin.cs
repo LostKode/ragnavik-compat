@@ -9,7 +9,7 @@ using UnityEngine.Rendering;
 
 namespace RagnavikCompat;
 
-[BepInPlugin(PluginGuid, "Ragnavik Compatibility", "1.0.9")]
+[BepInPlugin(PluginGuid, "Ragnavik Compatibility", "1.0.10")]
 [BepInDependency("WackyMole.EpicMMOSystem", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("org.bepinex.plugins.afterdeath", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("org.bepinex.plugins.starvation", BepInDependency.DependencyFlags.SoftDependency)]
@@ -33,6 +33,7 @@ public sealed class RagnavikCompatPlugin : BaseUnityPlugin
     private static MethodInfo? _getPocketBalance;
     private static MethodInfo? _updatePocketBalance;
     private static MethodInfo? _updatePocketUi;
+    private static StatusEffect? _afterdeathGhostStatus;
 
     private Harmony? _harmony;
     private MethodInfo? _readJsonValues;
@@ -45,6 +46,7 @@ public sealed class RagnavikCompatPlugin : BaseUnityPlugin
         _harmony = new Harmony(PluginGuid);
         EnableAfterdeathStarvationCompatibility();
         EnableAfterdeathTeleportCompatibility();
+        EnableAfterdeathDoorCompatibility();
         EnableAfterdeathNearestBedCompatibility();
         EnableEpicLootMagicPluginTakeAllCompatibility();
         EnableCurrencyPocketTakeAllCompatibility();
@@ -310,6 +312,78 @@ public sealed class RagnavikCompatPlugin : BaseUnityPlugin
         return false;
     }
 
+    private void EnableAfterdeathDoorCompatibility()
+    {
+        if (!Chainloader.PluginInfos.TryGetValue("org.bepinex.plugins.afterdeath", out var afterdeathPlugin) ||
+            !AfterdeathDoorCompatibility.Supports(afterdeathPlugin.Metadata.Version))
+        {
+            var installedVersion = afterdeathPlugin?.Metadata.Version?.ToString() ?? "not installed";
+            Logger.LogInfo($"Afterdeath spirit door bridge skipped because Afterdeath {installedVersion} is not the supported {AfterdeathDoorCompatibility.SupportedAfterdeathVersion} version.");
+            return;
+        }
+        var disableInteractText = AccessTools.TypeByName("Afterdeath.BlockStuff+DisableInteractText");
+        var afterdeathPostfix = disableInteractText == null
+            ? null
+            : AccessTools.Method(disableInteractText, "Postfix", new[] { typeof(Player), typeof(GameObject).MakeByRefType() });
+        var afterdeathType = AccessTools.TypeByName("Afterdeath.Afterdeath");
+        var ghostStatusField = afterdeathType == null ? null : AccessTools.Field(afterdeathType, "ghostStatus");
+        var bedInteract = AccessTools.Method(typeof(Bed), nameof(Bed.Interact), new[] { typeof(Humanoid), typeof(bool), typeof(bool) });
+        if (afterdeathPostfix == null || afterdeathPostfix.ReturnType != typeof(void) ||
+            ghostStatusField == null || !typeof(StatusEffect).IsAssignableFrom(ghostStatusField.FieldType) ||
+            bedInteract == null || bedInteract.ReturnType != typeof(bool))
+        {
+            Logger.LogInfo("Afterdeath spirit home access skipped because its interaction blocker, ghost status, or Valheim's Bed.Interact signature changed. Review the relevant changelog before adapting this module.");
+            return;
+        }
+
+        _afterdeathGhostStatus = ghostStatusField.GetValue(null) as StatusEffect;
+        if (_afterdeathGhostStatus == null)
+        {
+            Logger.LogInfo("Afterdeath spirit home access skipped because Afterdeath's ghost status is unavailable.");
+            return;
+        }
+
+        _harmony!.Patch(afterdeathPostfix,
+            prefix: new HarmonyMethod(typeof(RagnavikCompatPlugin), nameof(BeforeAfterdeathInteractionBlock)));
+        _harmony.Patch(bedInteract,
+            prefix: new HarmonyMethod(typeof(RagnavikCompatPlugin), nameof(BeforeAssignedBedInteraction)));
+        Logger.LogInfo("Afterdeath spirit home access is active. Spirits can use permitted doors and resurrect at their assigned bed.");
+    }
+
+    private static bool BeforeAfterdeathInteractionBlock(Player __instance, GameObject? hover)
+    {
+        var isDoor = hover != null && hover.GetComponentInParent<Door>() != null;
+        var isAssignedBed = hover != null && IsAssignedBed(hover);
+        return !AfterdeathDoorCompatibility.ShouldAllowInteraction(
+            __instance.m_customData.ContainsKey("Afterdeath Ghost"),
+            __instance.IsDead(),
+            isDoor,
+            isAssignedBed);
+    }
+
+    private static bool BeforeAssignedBedInteraction(Bed __instance, Humanoid user, bool hold, ref bool __result)
+    {
+        if (hold || user is not Player player || _afterdeathGhostStatus == null ||
+            !AfterdeathDoorCompatibility.ShouldAllowInteraction(
+                player.m_customData.ContainsKey("Afterdeath Ghost"),
+                player.IsDead(),
+                false,
+                IsAssignedBed(__instance.gameObject)))
+            return true;
+
+        player.GetSEMan().RemoveStatusEffect(_afterdeathGhostStatus);
+        __result = true;
+        return false;
+    }
+
+    private static bool IsAssignedBed(GameObject candidate)
+    {
+        var profile = Game.instance?.GetPlayerProfile();
+        var bed = candidate.GetComponentInParent<Bed>();
+        return profile != null && profile.HaveCustomSpawnPoint() && bed != null &&
+               Vector3.Distance(bed.transform.position, profile.GetCustomSpawnPoint()) <= 3f;
+    }
+
     private void EnableAfterdeathNearestBedCompatibility()
     {
         if (!Chainloader.PluginInfos.TryGetValue("org.bepinex.plugins.afterdeath", out var afterdeathPlugin) ||
@@ -423,6 +497,7 @@ public sealed class RagnavikCompatPlugin : BaseUnityPlugin
         _takeAllBridgeEnabled = false;
         _takeAllPatchInstalled = false;
         _currencyPocketTakeAllEnabled = false;
+        _afterdeathGhostStatus = null;
         _getPocketBalance = null;
         _updatePocketBalance = null;
         _updatePocketUi = null;

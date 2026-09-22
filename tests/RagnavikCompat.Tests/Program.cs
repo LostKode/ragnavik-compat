@@ -31,6 +31,18 @@ AssertFalse(AfterdeathTeleportCompatibility.ShouldAllowTeleport(false, false), "
 AssertFalse(AfterdeathTeleportCompatibility.ShouldAllowTeleport(true, true), "dead player teleport override");
 Console.WriteLine("PASS: teleport override is restricted to living Afterdeath spirits on Afterdeath 1.0.10");
 
+AssertTrue(AfterdeathDoorCompatibility.Supports(new Version(1, 0, 10)), "supported Afterdeath door version");
+AssertFalse(AfterdeathDoorCompatibility.Supports(new Version(1, 0, 9)), "older Afterdeath door version");
+AssertFalse(AfterdeathDoorCompatibility.Supports(new Version(1, 0, 11)), "newer Afterdeath door version");
+AssertFalse(AfterdeathDoorCompatibility.Supports(null), "missing Afterdeath door version");
+AssertTrue(AfterdeathDoorCompatibility.ShouldAllowInteraction(true, false, true, false), "living Afterdeath spirit door");
+AssertFalse(AfterdeathDoorCompatibility.ShouldAllowInteraction(true, false, false, false), "living Afterdeath spirit non-door");
+AssertFalse(AfterdeathDoorCompatibility.ShouldAllowInteraction(false, false, true, false), "ordinary living player door");
+AssertFalse(AfterdeathDoorCompatibility.ShouldAllowInteraction(true, true, true, false), "dead player door");
+AssertTrue(AfterdeathDoorCompatibility.ShouldAllowInteraction(true, false, false, true), "living Afterdeath spirit assigned bed");
+AssertFalse(AfterdeathDoorCompatibility.ShouldAllowInteraction(true, false, false, false), "living Afterdeath spirit unassigned bed");
+Console.WriteLine("PASS: home access override permits only doors and the assigned bed for living Afterdeath spirits on Afterdeath 1.0.10");
+
 AssertTrue(AfterdeathNearestBedCompatibility.Supports(new Version(1, 0, 10)), "supported Afterdeath nearest-bed version");
 AssertFalse(AfterdeathNearestBedCompatibility.Supports(new Version(1, 0, 9)), "older Afterdeath nearest-bed version");
 AssertFalse(AfterdeathNearestBedCompatibility.Supports(new Version(1, 0, 11)), "newer Afterdeath nearest-bed version");
@@ -97,6 +109,20 @@ VerifyMethod(
     "Prefix",
     Array.Empty<string>(),
     "Afterdeath 1.0.10 DisableTeleport.Prefix() patch contract verified");
+VerifyMethod(
+    args[1],
+    "",
+    "DisableInteractText",
+    "Postfix",
+    new[] { "__instance", "hover" },
+    "Afterdeath 1.0.10 DisableInteractText.Postfix(Player, ref GameObject) patch contract verified");
+VerifyField(
+    args[1],
+    "Afterdeath",
+    "Afterdeath",
+    "ghostStatus",
+    "Afterdeath 1.0.10 ghostStatus field contract verified");
+
 VerifyMethod(
     args[1],
     "Afterdeath",
@@ -184,6 +210,23 @@ static void AssertTrue(bool actual, string label)
 static void AssertFalse(bool actual, string label)
 {
     if (actual) throw new Exception($"{label} was accepted unexpectedly");
+}
+
+static void VerifyField(string assemblyPath, string typeNamespace, string typeName, string fieldName, string successMessage)
+{
+    using var input = File.OpenRead(assemblyPath);
+    using var pe = new PEReader(input);
+    var metadata = pe.GetMetadataReader();
+    var fields = metadata.TypeDefinitions
+        .Select(typeHandle => metadata.GetTypeDefinition(typeHandle))
+        .Where(type => metadata.GetString(type.Name) == typeName && metadata.GetString(type.Namespace) == typeNamespace)
+        .SelectMany(type => type.GetFields())
+        .Select(handle => metadata.GetFieldDefinition(handle))
+        .Where(field => metadata.GetString(field.Name) == fieldName)
+        .ToArray();
+    if (fields.Length != 1)
+        throw new Exception($"Expected one {typeNamespace}.{typeName}.{fieldName} field, found {fields.Length}.");
+    Console.WriteLine("PASS: " + successMessage);
 }
 
 static void VerifyMethod(string assemblyPath, string typeNamespace, string typeName, string methodName, string[] expectedParameters, string successMessage)
