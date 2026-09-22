@@ -2,6 +2,7 @@
 
 | Version | Changes |
 | --- | --- |
+| 1.0.11 | Restore recovered AzuEPI items to their original quick slots after a successful grave Take All. |
 | 1.0.10 | Allow Afterdeath spirits to operate permitted doors through Valheim's normal ward and access checks and resurrect at their own assigned bed while keeping other interactions blocked. |
 | 1.0.9 | Keep Take All coverage active for every Epic Loot and MagicPlugin item across mod updates while retaining Valheim API signature validation. |
 | 1.0.8 | Spawn at the player's valid bed instead of Skathi when the bed is closer to the death point. |

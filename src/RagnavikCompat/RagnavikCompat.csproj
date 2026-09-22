@@ -8,7 +8,7 @@
     <BepInExCoreDir Condition="'$(BepInExCoreDir)' == ''">$(MSBuildProjectDirectory)/../../../references/BepInEx</BepInExCoreDir>
     <AssemblyName>RagnavikCompat</AssemblyName>
     <RootNamespace>RagnavikCompat</RootNamespace>
-    <Version>1.0.10</Version>
+    <Version>1.0.11</Version>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="BepInEx">
@@ -29,6 +29,10 @@
     </Reference>
     <Reference Include="assembly_valheim">
       <HintPath>$(ValheimManagedDir)/assembly_valheim.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="assembly_utils">
+      <HintPath>$(ValheimManagedDir)/assembly_utils.dll</HintPath>
       <Private>false</Private>
     </Reference>
   </ItemGroup>

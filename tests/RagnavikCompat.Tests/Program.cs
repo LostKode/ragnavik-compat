@@ -2,8 +2,8 @@ using RagnavikCompat;
 using System.Reflection.Metadata;
 using System.Reflection.PortableExecutable;
 
-if (args.Length != 4)
-    throw new ArgumentException("Pass the installed EpicMMOSystem.dll, Afterdeath.dll, Starvation.dll and CurrencyPocket.dll for signature verification.");
+if (args.Length != 5)
+    throw new ArgumentException("Pass the installed EpicMMOSystem.dll, Afterdeath.dll, Starvation.dll, CurrencyPocket.dll and AzuExtendedPlayerInventory.dll for signature verification.");
 
 AssertTrue(EpicMmoReloadGuardCompatibility.Supports(new Version(1, 9, 68)), "supported EpicMMO version");
 AssertFalse(EpicMmoReloadGuardCompatibility.Supports(new Version(1, 9, 67)), "older EpicMMO version");
@@ -53,6 +53,12 @@ AssertFalse(AfterdeathNearestBedCompatibility.ShouldUseBed(true, 0, 0, 50, 0, 0,
 AssertFalse(AfterdeathNearestBedCompatibility.ShouldUseBed(false, 0, 0, 100, 0, 25, 0), "missing valid bed");
 AssertTrue(AfterdeathNearestBedCompatibility.ShouldUseBed(true, 100, 100, 0, 0, 90, 90), "XZ distance from non-origin death");
 Console.WriteLine("PASS: Afterdeath selects a valid bed only when it is strictly closer than Skathi");
+
+AssertTrue(AzuEpiQuickSlotRecoveryCompatibility.Supports(new Version(2, 5, 1)), "supported AzuEPI version");
+AssertFalse(AzuEpiQuickSlotRecoveryCompatibility.Supports(new Version(2, 5, 0)), "older AzuEPI version");
+AssertFalse(AzuEpiQuickSlotRecoveryCompatibility.Supports(new Version(2, 5, 2)), "newer AzuEPI version");
+AssertFalse(AzuEpiQuickSlotRecoveryCompatibility.Supports(null), "missing AzuEPI version");
+Console.WriteLine("PASS: grave quick-slot recovery is restricted to AzuExtendedPlayerInventory 2.5.1");
 
 AssertTrue(EpicLootMagicPluginTakeAllCompatibility.Supports(new Version(0, 14, 11), new Version(2, 2, 1)), "supported Epic Loot and MagicPlugin versions");
 AssertTrue(EpicLootMagicPluginTakeAllCompatibility.Supports(new Version(0, 14, 10), new Version(2, 2, 1)), "older Epic Loot version");
@@ -159,6 +165,20 @@ VerifyMethod(
     "UpdatePocketUI",
     Array.Empty<string>(),
     "CurrencyPocket 1.0.15 UpdatePocketUI() contract verified");
+VerifyMethod(
+    args[4],
+    "AzuEPI",
+    "API",
+    "GetQuickSlotSnapshots",
+    new[] { "inv" },
+    "AzuExtendedPlayerInventory 2.5.1 GetQuickSlotSnapshots(Inventory) contract verified");
+VerifyMethod(
+    args[4],
+    "AzuEPI",
+    "SlotSnapshot",
+    "get_GridPos",
+    Array.Empty<string>(),
+    "AzuExtendedPlayerInventory 2.5.1 SlotSnapshot.GridPos contract verified");
 
 var folder = Path.Combine(Path.GetTempPath(), "ragnavik-epicmmo-guard-" + Guid.NewGuid().ToString("N"));
 Directory.CreateDirectory(folder);
