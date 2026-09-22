@@ -9,7 +9,7 @@ using UnityEngine.Rendering;
 
 namespace RagnavikCompat;
 
-[BepInPlugin(PluginGuid, "Ragnavik Compatibility", "1.0.7")]
+[BepInPlugin(PluginGuid, "Ragnavik Compatibility", "1.0.8")]
 [BepInDependency("WackyMole.EpicMMOSystem", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("org.bepinex.plugins.afterdeath", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("org.bepinex.plugins.starvation", BepInDependency.DependencyFlags.SoftDependency)]
@@ -45,6 +45,7 @@ public sealed class RagnavikCompatPlugin : BaseUnityPlugin
         _harmony = new Harmony(PluginGuid);
         EnableAfterdeathStarvationCompatibility();
         EnableAfterdeathTeleportCompatibility();
+        EnableAfterdeathNearestBedCompatibility();
         EnableEpicLootMagicPluginTakeAllCompatibility();
         EnableCurrencyPocketTakeAllCompatibility();
 
@@ -307,6 +308,43 @@ public sealed class RagnavikCompatPlugin : BaseUnityPlugin
 
         __result = true;
         return false;
+    }
+
+    private void EnableAfterdeathNearestBedCompatibility()
+    {
+        if (!Chainloader.PluginInfos.TryGetValue("org.bepinex.plugins.afterdeath", out var afterdeathPlugin) ||
+            !AfterdeathNearestBedCompatibility.Supports(afterdeathPlugin.Metadata.Version))
+        {
+            var installedVersion = afterdeathPlugin?.Metadata.Version?.ToString() ?? "not installed";
+            Logger.LogInfo($"Afterdeath nearest-bed spawn skipped because Afterdeath {installedVersion} is not the supported {AfterdeathNearestBedCompatibility.SupportedAfterdeathVersion} version.");
+            return;
+        }
+
+        var afterdeathUtils = AccessTools.TypeByName("Afterdeath.Utils");
+        var getClosestLocation = afterdeathUtils == null
+            ? null
+            : AccessTools.Method(afterdeathUtils, "GetClosestLocation", new[] { typeof(Vector3) });
+        if (getClosestLocation == null || getClosestLocation.ReturnType != typeof(Vector3))
+        {
+            Logger.LogInfo("Afterdeath nearest-bed spawn skipped because Afterdeath's expected Utils.GetClosestLocation(Vector3) signature changed. Review its changelog before adapting this module.");
+            return;
+        }
+
+        _harmony!.Patch(getClosestLocation,
+            postfix: new HarmonyMethod(typeof(RagnavikCompatPlugin), nameof(ChooseNearestAfterdeathSpawn)));
+        Logger.LogInfo("Afterdeath nearest-bed spawn is active. A valid bed wins when it is closer to the death point than Skathi.");
+    }
+
+    private static void ChooseNearestAfterdeathSpawn(Vector3 position, ref Vector3 __result)
+    {
+        var profile = Game.instance?.GetPlayerProfile();
+        if (profile == null || !profile.HaveCustomSpawnPoint())
+            return;
+
+        var bedPoint = profile.GetCustomSpawnPoint();
+        if (AfterdeathNearestBedCompatibility.ShouldUseBed(
+                true, position.x, position.z, __result.x, __result.z, bedPoint.x, bedPoint.z))
+            __result = bedPoint;
     }
 
     private static bool BeforeJsonReload(object __instance, FileSystemEventArgs __1)

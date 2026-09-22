@@ -2,6 +2,7 @@
 
 | Version | Changes |
 | --- | --- |
+| 1.0.8 | Spawn at the player's valid bed instead of Skathi when the bed is closer to the death point. |
 | 1.0.7 | Allow Afterdeath spirits to use ordinary portals and dungeon transitions while preserving normal travel behavior after resurrection. |
 | 1.0.6 | Add EpicMMO levels and experience rewards for the current SeaAnimals, OdinBear, OdinHorse, OdinMounts, BottledNeck, BeeQueen, and GoodestBoy creatures. Tamed offspring and companion creatures display levels without granting exploitable experience. |
 | 1.0.5 | Send coins collected with Take All directly into CurrencyPocket while leaving other container contents on the normal transfer path. |
