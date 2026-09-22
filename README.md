@@ -34,6 +34,18 @@ When Afterdeath 1.0.10 is installed, spirits can use Valheim teleport transition
 
 The module remains inactive when Afterdeath is absent, when its version differs, or when its expected `DisableTeleport.Prefix()` signature changes.
 
+### Afterdeath spirit home access
+
+When Afterdeath 1.0.10 is installed, spirits can operate doors and interact with their own assigned bed. Doors still run through Valheim's normal interaction path, so private ward allow lists remain authoritative. Interacting with the player's assigned bed resurrects that spirit. Other players' beds, containers, crafting stations, pickups, and all other interactions remain blocked by Afterdeath.
+
+The module remains inactive when Afterdeath is absent, when its version differs, or when Afterdeath's interaction blocker, ghost status field, or Valheim's expected bed interaction signature changes.
+
+### AzuEPI grave quick-slot recovery
+
+When AzuExtendedPlayerInventory 2.5.1 is installed, items recovered through a successful grave Take All return to the same quick slots they occupied at death, including the default Alt+Z, Alt+X, and Alt+C cells. If another item occupies a destination while the player is a spirit, it is safely swapped into the recovered item's temporary inventory cell rather than overwritten. AzuEPI continues to handle equipment re-equipping.
+
+The module remains inactive when AzuEPI is absent, when its version differs, or when its quick-slot snapshot API or Valheim's grave transfer signatures change.
+
 ### Afterdeath nearest-bed spawn
 
 When Afterdeath 1.0.10 is installed and a player has a valid bed spawn, the runtime plugin compares that bed with Afterdeath's nearest Skathi using horizontal distance from the death point. The player respawns at the bed only when it is strictly closer; equal distances continue to use Skathi.

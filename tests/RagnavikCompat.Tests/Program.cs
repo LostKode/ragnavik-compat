@@ -2,8 +2,8 @@ using RagnavikCompat;
 using System.Reflection.Metadata;
 using System.Reflection.PortableExecutable;
 
-if (args.Length != 4)
-    throw new ArgumentException("Pass the installed EpicMMOSystem.dll, Afterdeath.dll, Starvation.dll and CurrencyPocket.dll for signature verification.");
+if (args.Length != 5)
+    throw new ArgumentException("Pass the installed EpicMMOSystem.dll, Afterdeath.dll, Starvation.dll, CurrencyPocket.dll and AzuExtendedPlayerInventory.dll for signature verification.");
 
 AssertTrue(EpicMmoReloadGuardCompatibility.Supports(new Version(1, 9, 68)), "supported EpicMMO version");
 AssertFalse(EpicMmoReloadGuardCompatibility.Supports(new Version(1, 9, 67)), "older EpicMMO version");
@@ -31,6 +31,18 @@ AssertFalse(AfterdeathTeleportCompatibility.ShouldAllowTeleport(false, false), "
 AssertFalse(AfterdeathTeleportCompatibility.ShouldAllowTeleport(true, true), "dead player teleport override");
 Console.WriteLine("PASS: teleport override is restricted to living Afterdeath spirits on Afterdeath 1.0.10");
 
+AssertTrue(AfterdeathDoorCompatibility.Supports(new Version(1, 0, 10)), "supported Afterdeath door version");
+AssertFalse(AfterdeathDoorCompatibility.Supports(new Version(1, 0, 9)), "older Afterdeath door version");
+AssertFalse(AfterdeathDoorCompatibility.Supports(new Version(1, 0, 11)), "newer Afterdeath door version");
+AssertFalse(AfterdeathDoorCompatibility.Supports(null), "missing Afterdeath door version");
+AssertTrue(AfterdeathDoorCompatibility.ShouldAllowInteraction(true, false, true, false), "living Afterdeath spirit door");
+AssertFalse(AfterdeathDoorCompatibility.ShouldAllowInteraction(true, false, false, false), "living Afterdeath spirit non-door");
+AssertFalse(AfterdeathDoorCompatibility.ShouldAllowInteraction(false, false, true, false), "ordinary living player door");
+AssertFalse(AfterdeathDoorCompatibility.ShouldAllowInteraction(true, true, true, false), "dead player door");
+AssertTrue(AfterdeathDoorCompatibility.ShouldAllowInteraction(true, false, false, true), "living Afterdeath spirit assigned bed");
+AssertFalse(AfterdeathDoorCompatibility.ShouldAllowInteraction(true, false, false, false), "living Afterdeath spirit unassigned bed");
+Console.WriteLine("PASS: home access override permits only doors and the assigned bed for living Afterdeath spirits on Afterdeath 1.0.10");
+
 AssertTrue(AfterdeathNearestBedCompatibility.Supports(new Version(1, 0, 10)), "supported Afterdeath nearest-bed version");
 AssertFalse(AfterdeathNearestBedCompatibility.Supports(new Version(1, 0, 9)), "older Afterdeath nearest-bed version");
 AssertFalse(AfterdeathNearestBedCompatibility.Supports(new Version(1, 0, 11)), "newer Afterdeath nearest-bed version");
@@ -41,6 +53,12 @@ AssertFalse(AfterdeathNearestBedCompatibility.ShouldUseBed(true, 0, 0, 50, 0, 0,
 AssertFalse(AfterdeathNearestBedCompatibility.ShouldUseBed(false, 0, 0, 100, 0, 25, 0), "missing valid bed");
 AssertTrue(AfterdeathNearestBedCompatibility.ShouldUseBed(true, 100, 100, 0, 0, 90, 90), "XZ distance from non-origin death");
 Console.WriteLine("PASS: Afterdeath selects a valid bed only when it is strictly closer than Skathi");
+
+AssertTrue(AzuEpiQuickSlotRecoveryCompatibility.Supports(new Version(2, 5, 1)), "supported AzuEPI version");
+AssertFalse(AzuEpiQuickSlotRecoveryCompatibility.Supports(new Version(2, 5, 0)), "older AzuEPI version");
+AssertFalse(AzuEpiQuickSlotRecoveryCompatibility.Supports(new Version(2, 5, 2)), "newer AzuEPI version");
+AssertFalse(AzuEpiQuickSlotRecoveryCompatibility.Supports(null), "missing AzuEPI version");
+Console.WriteLine("PASS: grave quick-slot recovery is restricted to AzuExtendedPlayerInventory 2.5.1");
 
 AssertTrue(EpicLootMagicPluginTakeAllCompatibility.Supports(new Version(0, 14, 11), new Version(2, 2, 1)), "supported Epic Loot and MagicPlugin versions");
 AssertTrue(EpicLootMagicPluginTakeAllCompatibility.Supports(new Version(0, 14, 10), new Version(2, 2, 1)), "older Epic Loot version");
@@ -99,6 +117,20 @@ VerifyMethod(
     "Afterdeath 1.0.10 DisableTeleport.Prefix() patch contract verified");
 VerifyMethod(
     args[1],
+    "",
+    "DisableInteractText",
+    "Postfix",
+    new[] { "__instance", "hover" },
+    "Afterdeath 1.0.10 DisableInteractText.Postfix(Player, ref GameObject) patch contract verified");
+VerifyField(
+    args[1],
+    "Afterdeath",
+    "Afterdeath",
+    "ghostStatus",
+    "Afterdeath 1.0.10 ghostStatus field contract verified");
+
+VerifyMethod(
+    args[1],
     "Afterdeath",
     "Utils",
     "GetClosestLocation",
@@ -133,6 +165,20 @@ VerifyMethod(
     "UpdatePocketUI",
     Array.Empty<string>(),
     "CurrencyPocket 1.0.15 UpdatePocketUI() contract verified");
+VerifyMethod(
+    args[4],
+    "AzuEPI",
+    "API",
+    "GetQuickSlotSnapshots",
+    new[] { "inv" },
+    "AzuExtendedPlayerInventory 2.5.1 GetQuickSlotSnapshots(Inventory) contract verified");
+VerifyMethod(
+    args[4],
+    "AzuEPI",
+    "SlotSnapshot",
+    "get_GridPos",
+    Array.Empty<string>(),
+    "AzuExtendedPlayerInventory 2.5.1 SlotSnapshot.GridPos contract verified");
 
 var folder = Path.Combine(Path.GetTempPath(), "ragnavik-epicmmo-guard-" + Guid.NewGuid().ToString("N"));
 Directory.CreateDirectory(folder);
@@ -184,6 +230,23 @@ static void AssertTrue(bool actual, string label)
 static void AssertFalse(bool actual, string label)
 {
     if (actual) throw new Exception($"{label} was accepted unexpectedly");
+}
+
+static void VerifyField(string assemblyPath, string typeNamespace, string typeName, string fieldName, string successMessage)
+{
+    using var input = File.OpenRead(assemblyPath);
+    using var pe = new PEReader(input);
+    var metadata = pe.GetMetadataReader();
+    var fields = metadata.TypeDefinitions
+        .Select(typeHandle => metadata.GetTypeDefinition(typeHandle))
+        .Where(type => metadata.GetString(type.Name) == typeName && metadata.GetString(type.Namespace) == typeNamespace)
+        .SelectMany(type => type.GetFields())
+        .Select(handle => metadata.GetFieldDefinition(handle))
+        .Where(field => metadata.GetString(field.Name) == fieldName)
+        .ToArray();
+    if (fields.Length != 1)
+        throw new Exception($"Expected one {typeNamespace}.{typeName}.{fieldName} field, found {fields.Length}.");
+    Console.WriteLine("PASS: " + successMessage);
 }
 
 static void VerifyMethod(string assemblyPath, string typeNamespace, string typeName, string methodName, string[] expectedParameters, string successMessage)

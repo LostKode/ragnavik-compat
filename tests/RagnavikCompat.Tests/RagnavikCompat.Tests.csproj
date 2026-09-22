@@ -11,6 +11,8 @@
     <Compile Include="../../src/RagnavikCompat/AfterdeathStarvationCompatibility.cs" Link="AfterdeathStarvationCompatibility.cs" />
     <Compile Include="../../src/RagnavikCompat/AfterdeathNearestBedCompatibility.cs" Link="AfterdeathNearestBedCompatibility.cs" />
     <Compile Include="../../src/RagnavikCompat/AfterdeathTeleportCompatibility.cs" Link="AfterdeathTeleportCompatibility.cs" />
+    <Compile Include="../../src/RagnavikCompat/AfterdeathDoorCompatibility.cs" Link="AfterdeathDoorCompatibility.cs" />
+    <Compile Include="../../src/RagnavikCompat/AzuEpiQuickSlotRecoveryCompatibility.cs" Link="AzuEpiQuickSlotRecoveryCompatibility.cs" />
     <Compile Include="../../src/RagnavikCompat/EpicLootMagicPluginTakeAllCompatibility.cs" Link="EpicLootMagicPluginTakeAllCompatibility.cs" />
     <Compile Include="../../src/RagnavikCompat/CurrencyPocketTakeAllCompatibility.cs" Link="CurrencyPocketTakeAllCompatibility.cs" />
   </ItemGroup>

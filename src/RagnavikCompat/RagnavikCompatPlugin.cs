@@ -1,5 +1,8 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using BepInEx;
 using BepInEx.Bootstrap;
@@ -9,13 +12,14 @@ using UnityEngine.Rendering;
 
 namespace RagnavikCompat;
 
-[BepInPlugin(PluginGuid, "Ragnavik Compatibility", "1.0.9")]
+[BepInPlugin(PluginGuid, "Ragnavik Compatibility", "1.0.11")]
 [BepInDependency("WackyMole.EpicMMOSystem", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("org.bepinex.plugins.afterdeath", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("org.bepinex.plugins.starvation", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("randyknapp.mods.epicloot", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("blacks7ar.MagicPlugin", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("Azumatt.CurrencyPocket", BepInDependency.DependencyFlags.SoftDependency)]
+[BepInDependency("Azumatt.AzuExtendedPlayerInventory", BepInDependency.DependencyFlags.SoftDependency)]
 public sealed class RagnavikCompatPlugin : BaseUnityPlugin
 {
     public const string PluginGuid = "lostkode.ragnavik.compat";
@@ -33,6 +37,12 @@ public sealed class RagnavikCompatPlugin : BaseUnityPlugin
     private static MethodInfo? _getPocketBalance;
     private static MethodInfo? _updatePocketBalance;
     private static MethodInfo? _updatePocketUi;
+    private static StatusEffect? _afterdeathGhostStatus;
+    private static MethodInfo? _getQuickSlotSnapshots;
+    private static PropertyInfo? _quickSlotGridPos;
+    private static FieldInfo? _quickSlotGridPosX;
+    private static FieldInfo? _quickSlotGridPosY;
+    private static readonly Dictionary<int, List<QuickSlotRestore>> PendingQuickSlotRestores = new();
 
     private Harmony? _harmony;
     private MethodInfo? _readJsonValues;
@@ -45,7 +55,9 @@ public sealed class RagnavikCompatPlugin : BaseUnityPlugin
         _harmony = new Harmony(PluginGuid);
         EnableAfterdeathStarvationCompatibility();
         EnableAfterdeathTeleportCompatibility();
+        EnableAfterdeathDoorCompatibility();
         EnableAfterdeathNearestBedCompatibility();
+        EnableAzuEpiQuickSlotRecoveryCompatibility();
         EnableEpicLootMagicPluginTakeAllCompatibility();
         EnableCurrencyPocketTakeAllCompatibility();
 
@@ -310,6 +322,198 @@ public sealed class RagnavikCompatPlugin : BaseUnityPlugin
         return false;
     }
 
+    private void EnableAfterdeathDoorCompatibility()
+    {
+        if (!Chainloader.PluginInfos.TryGetValue("org.bepinex.plugins.afterdeath", out var afterdeathPlugin) ||
+            !AfterdeathDoorCompatibility.Supports(afterdeathPlugin.Metadata.Version))
+        {
+            var installedVersion = afterdeathPlugin?.Metadata.Version?.ToString() ?? "not installed";
+            Logger.LogInfo($"Afterdeath spirit door bridge skipped because Afterdeath {installedVersion} is not the supported {AfterdeathDoorCompatibility.SupportedAfterdeathVersion} version.");
+            return;
+        }
+        var disableInteractText = AccessTools.TypeByName("Afterdeath.BlockStuff+DisableInteractText");
+        var afterdeathPostfix = disableInteractText == null
+            ? null
+            : AccessTools.Method(disableInteractText, "Postfix", new[] { typeof(Player), typeof(GameObject).MakeByRefType() });
+        var afterdeathType = AccessTools.TypeByName("Afterdeath.Afterdeath");
+        var ghostStatusField = afterdeathType == null ? null : AccessTools.Field(afterdeathType, "ghostStatus");
+        var bedInteract = AccessTools.Method(typeof(Bed), nameof(Bed.Interact), new[] { typeof(Humanoid), typeof(bool), typeof(bool) });
+        if (afterdeathPostfix == null || afterdeathPostfix.ReturnType != typeof(void) ||
+            ghostStatusField == null || !typeof(StatusEffect).IsAssignableFrom(ghostStatusField.FieldType) ||
+            bedInteract == null || bedInteract.ReturnType != typeof(bool))
+        {
+            Logger.LogInfo("Afterdeath spirit home access skipped because its interaction blocker, ghost status, or Valheim's Bed.Interact signature changed. Review the relevant changelog before adapting this module.");
+            return;
+        }
+
+        _afterdeathGhostStatus = ghostStatusField.GetValue(null) as StatusEffect;
+        if (_afterdeathGhostStatus == null)
+        {
+            Logger.LogInfo("Afterdeath spirit home access skipped because Afterdeath's ghost status is unavailable.");
+            return;
+        }
+
+        _harmony!.Patch(afterdeathPostfix,
+            prefix: new HarmonyMethod(typeof(RagnavikCompatPlugin), nameof(BeforeAfterdeathInteractionBlock)));
+        _harmony.Patch(bedInteract,
+            prefix: new HarmonyMethod(typeof(RagnavikCompatPlugin), nameof(BeforeAssignedBedInteraction)));
+        Logger.LogInfo("Afterdeath spirit home access is active. Spirits can use permitted doors and resurrect at their assigned bed.");
+    }
+
+    private static bool BeforeAfterdeathInteractionBlock(Player __instance, GameObject? hover)
+    {
+        var isDoor = hover != null && hover.GetComponentInParent<Door>() != null;
+        var isAssignedBed = hover != null && IsAssignedBed(hover);
+        return !AfterdeathDoorCompatibility.ShouldAllowInteraction(
+            __instance.m_customData.ContainsKey("Afterdeath Ghost"),
+            __instance.IsDead(),
+            isDoor,
+            isAssignedBed);
+    }
+
+    private static bool BeforeAssignedBedInteraction(Bed __instance, Humanoid user, bool hold, ref bool __result)
+    {
+        if (hold || user is not Player player || _afterdeathGhostStatus == null ||
+            !AfterdeathDoorCompatibility.ShouldAllowInteraction(
+                player.m_customData.ContainsKey("Afterdeath Ghost"),
+                player.IsDead(),
+                false,
+                IsAssignedBed(__instance.gameObject)))
+            return true;
+
+        player.GetSEMan().RemoveStatusEffect(_afterdeathGhostStatus);
+        __result = true;
+        return false;
+    }
+
+    private static bool IsAssignedBed(GameObject candidate)
+    {
+        var profile = Game.instance?.GetPlayerProfile();
+        var bed = candidate.GetComponentInParent<Bed>();
+        return profile != null && profile.HaveCustomSpawnPoint() && bed != null &&
+               Vector3.Distance(bed.transform.position, profile.GetCustomSpawnPoint()) <= 3f;
+    }
+
+    private void EnableAzuEpiQuickSlotRecoveryCompatibility()
+    {
+        if (!Chainloader.PluginInfos.TryGetValue("Azumatt.AzuExtendedPlayerInventory", out var azuEpiPlugin) ||
+            !AzuEpiQuickSlotRecoveryCompatibility.Supports(azuEpiPlugin.Metadata.Version))
+        {
+            var installedVersion = azuEpiPlugin?.Metadata.Version?.ToString() ?? "not installed";
+            Logger.LogInfo($"AzuEPI grave quick-slot recovery skipped because AzuExtendedPlayerInventory {installedVersion} is not the supported {AzuEpiQuickSlotRecoveryCompatibility.SupportedVersion} version.");
+            return;
+        }
+
+        var api = AccessTools.TypeByName("AzuEPI.API");
+        var slotSnapshot = AccessTools.TypeByName("AzuEPI.SlotSnapshot");
+        _getQuickSlotSnapshots = api == null
+            ? null
+            : AccessTools.Method(api, "GetQuickSlotSnapshots", new[] { typeof(Inventory) });
+        _quickSlotGridPos = slotSnapshot == null ? null : AccessTools.Property(slotSnapshot, "GridPos");
+        _quickSlotGridPosX = _quickSlotGridPos == null ? null : AccessTools.Field(_quickSlotGridPos.PropertyType, "x");
+        _quickSlotGridPosY = _quickSlotGridPos == null ? null : AccessTools.Field(_quickSlotGridPos.PropertyType, "y");
+        var takeAll = AccessTools.Method(typeof(Container), nameof(Container.TakeAll), new[] { typeof(Humanoid) });
+        var takeAllSuccess = AccessTools.Method(typeof(TombStone), "OnTakeAllSuccess");
+
+        if (_getQuickSlotSnapshots == null ||
+            !typeof(IEnumerable).IsAssignableFrom(_getQuickSlotSnapshots.ReturnType) ||
+            _quickSlotGridPos == null || _quickSlotGridPosX == null || _quickSlotGridPosY == null ||
+            takeAll == null || takeAll.ReturnType != typeof(void) ||
+            takeAllSuccess == null || takeAllSuccess.ReturnType != typeof(void))
+        {
+            Logger.LogInfo("AzuEPI grave quick-slot recovery skipped because its slot snapshot API or Valheim's grave transfer signatures changed. Review the relevant changelog before adapting this module.");
+            return;
+        }
+
+        _harmony!.Patch(takeAll,
+            prefix: new HarmonyMethod(typeof(RagnavikCompatPlugin), nameof(CaptureGraveQuickSlots)));
+        var restorePostfix = new HarmonyMethod(typeof(RagnavikCompatPlugin), nameof(RestoreGraveQuickSlots))
+        {
+            priority = Priority.Last
+        };
+        _harmony.Patch(takeAllSuccess, postfix: restorePostfix);
+        Logger.LogInfo("AzuEPI grave quick-slot recovery is active. Recovered quick-slot items return to their original hotkey cells.");
+    }
+
+    private static void CaptureGraveQuickSlots(Container __instance, Humanoid __0)
+    {
+        var tombstone = __instance.GetComponent<TombStone>();
+        var graveInventory = __instance.GetInventory();
+        if (tombstone == null || __0 is not Player player || player != Player.m_localPlayer ||
+            graveInventory == null || _getQuickSlotSnapshots == null || _quickSlotGridPos == null ||
+            _quickSlotGridPosX == null || _quickSlotGridPosY == null)
+            return;
+
+        var restores = new List<QuickSlotRestore>();
+        if (_getQuickSlotSnapshots.Invoke(null, new object[] { graveInventory }) is IEnumerable snapshots)
+        {
+            foreach (var snapshot in snapshots)
+            {
+                if (snapshot == null || _quickSlotGridPos.GetValue(snapshot) is not object gridPos ||
+                    _quickSlotGridPosX.GetValue(gridPos) is not int x ||
+                    _quickSlotGridPosY.GetValue(gridPos) is not int y)
+                    continue;
+
+                var item = graveInventory.GetItemAt(x, y);
+                if (item != null)
+                    restores.Add(new QuickSlotRestore(item, x, y));
+            }
+        }
+
+        PendingQuickSlotRestores[tombstone.GetInstanceID()] = restores;
+    }
+
+    private static void RestoreGraveQuickSlots(TombStone __instance)
+    {
+        var key = __instance.GetInstanceID();
+        if (!PendingQuickSlotRestores.TryGetValue(key, out var restores))
+            return;
+
+        PendingQuickSlotRestores.Remove(key);
+        var inventory = Player.m_localPlayer?.GetInventory();
+        if (inventory == null || restores.Count == 0)
+            return;
+
+        var recoveredItems = inventory.GetAllItems();
+        var changed = false;
+        foreach (var restore in restores)
+        {
+            if (!recoveredItems.Any(item => ReferenceEquals(item, restore.Item)))
+                continue;
+
+            var current = restore.Item.m_gridPos;
+            if (current.x == restore.X && current.y == restore.Y)
+                continue;
+
+            var displaced = inventory.GetItemAt(restore.X, restore.Y);
+            if (displaced != null && !ReferenceEquals(displaced, restore.Item))
+                displaced.m_gridPos = current;
+
+            var target = restore.Item.m_gridPos;
+            target.x = restore.X;
+            target.y = restore.Y;
+            restore.Item.m_gridPos = target;
+            changed = true;
+        }
+
+        if (changed)
+            inventory.m_onChanged?.Invoke();
+    }
+
+    private sealed class QuickSlotRestore
+    {
+        public ItemDrop.ItemData Item { get; }
+        public int X { get; }
+        public int Y { get; }
+
+        public QuickSlotRestore(ItemDrop.ItemData item, int x, int y)
+        {
+            Item = item;
+            X = x;
+            Y = y;
+        }
+    }
+
     private void EnableAfterdeathNearestBedCompatibility()
     {
         if (!Chainloader.PluginInfos.TryGetValue("org.bepinex.plugins.afterdeath", out var afterdeathPlugin) ||
@@ -423,6 +627,7 @@ public sealed class RagnavikCompatPlugin : BaseUnityPlugin
         _takeAllBridgeEnabled = false;
         _takeAllPatchInstalled = false;
         _currencyPocketTakeAllEnabled = false;
+        _afterdeathGhostStatus = null;
         _getPocketBalance = null;
         _updatePocketBalance = null;
         _updatePocketUi = null;
