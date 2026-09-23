@@ -12,7 +12,7 @@ using UnityEngine.Rendering;
 
 namespace RagnavikCompat;
 
-[BepInPlugin(PluginGuid, "Ragnavik Compatibility", "1.0.13")]
+[BepInPlugin(PluginGuid, "Ragnavik Compatibility", "1.0.14")]
 [BepInDependency("WackyMole.EpicMMOSystem", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("org.bepinex.plugins.afterdeath", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("org.bepinex.plugins.starvation", BepInDependency.DependencyFlags.SoftDependency)]
@@ -381,13 +381,13 @@ public sealed class RagnavikCompatPlugin : BaseUnityPlugin
         Logger.LogInfo("Afterdeath spirit home access is active. Spirits can use permitted doors and resurrect at their assigned bed.");
     }
 
-    private static bool BeforeAfterdeathInteractionBlock(Player __instance, GameObject? hover)
+    private static bool BeforeAfterdeathInteractionBlock(Player __0, GameObject? hover)
     {
         var isDoor = hover != null && hover.GetComponentInParent<Door>() != null;
         var isAssignedBed = hover != null && IsAssignedBed(hover);
         return !AfterdeathDoorCompatibility.ShouldAllowInteraction(
-            __instance.m_customData.ContainsKey("Afterdeath Ghost"),
-            __instance.IsDead(),
+            __0.m_customData.ContainsKey("Afterdeath Ghost"),
+            __0.IsDead(),
             isDoor,
             isAssignedBed);
     }

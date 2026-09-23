@@ -2,6 +2,7 @@
 
 | Version | Changes |
 | --- | --- |
+| 1.0.14 | Restore all hover prompts and interactions by binding the player argument positionally in the Afterdeath interaction bridge. |
 | 1.0.13 | Bind the Afterdeath assigned-bed interaction patch by argument position so current Valheim startup completes without a Harmony parameter-name failure. |
 | 1.0.12 | Preserve cooked food, magic reagents, upgrades, and other custom-data items in ItemDrawers. Follow the ItemDrawers package API across compatible updates instead of pinning one version. |
 | 1.0.11 | Restore recovered AzuEPI items to their original quick slots after a successful grave Take All. |
