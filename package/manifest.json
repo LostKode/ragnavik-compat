@@ -1,6 +1,6 @@
 {
   "name": "Ragnavik_Compatibility",
-  "version_number": "1.0.12",
+  "version_number": "1.0.13",
   "website_url": "https://www.ragnavik.com",
   "description": "Compatibility bridges and temporary interoperability fixes for the Ragnavik Valheim modpack.",
   "dependencies": [
