@@ -15,5 +15,6 @@
     <Compile Include="../../src/RagnavikCompat/AzuEpiQuickSlotRecoveryCompatibility.cs" Link="AzuEpiQuickSlotRecoveryCompatibility.cs" />
     <Compile Include="../../src/RagnavikCompat/EpicLootMagicPluginTakeAllCompatibility.cs" Link="EpicLootMagicPluginTakeAllCompatibility.cs" />
     <Compile Include="../../src/RagnavikCompat/CurrencyPocketTakeAllCompatibility.cs" Link="CurrencyPocketTakeAllCompatibility.cs" />
+    <Compile Include="../../src/RagnavikCompat/ItemDrawersCustomDataCompatibility.cs" Link="ItemDrawersCustomDataCompatibility.cs" />
   </ItemGroup>
 </Project>

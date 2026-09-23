@@ -4,6 +4,13 @@ Ragnavik Compatibility contains independently guarded fixes between mods in the 
 
 ## Modules
 
+### ItemDrawers custom-data bridge
+
+When kg.ItemDrawers is installed and exposes the expected drawer API, cooked food, magic reagents, upgrades, and other items with custom data can be deposited and withdrawn without losing their per-item metadata. Custom-data records are persisted on the drawer ZDO and restored exactly when withdrawn. Automatic drawer pickup leaves custom-data drops on the ground so it cannot route them through ItemDrawers original lossy bulk path.
+
+The module follows the package GUID and runtime API contract instead of an exact version. It remains active across compatible ItemDrawers updates and disables only itself when the required methods or properties change.
+
+
 ### Epic Loot and MagicPlugin Take All bridge
 
 When Epic Loot and MagicPlugin are both installed, the runtime plugin moves all container contents through Valheim's original-item transfer path instead of its coordinate-preserving bulk clone path. This preserves their item data instead of cloning the item into its old container coordinate. Mod version changes do not disable the bridge; it remains guarded by Valheim's expected `Inventory.MoveAll(Inventory)` signature.
