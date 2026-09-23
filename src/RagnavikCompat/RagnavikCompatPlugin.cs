@@ -12,7 +12,7 @@ using UnityEngine.Rendering;
 
 namespace RagnavikCompat;
 
-[BepInPlugin(PluginGuid, "Ragnavik Compatibility", "1.0.12")]
+[BepInPlugin(PluginGuid, "Ragnavik Compatibility", "1.0.13")]
 [BepInDependency("WackyMole.EpicMMOSystem", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("org.bepinex.plugins.afterdeath", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("org.bepinex.plugins.starvation", BepInDependency.DependencyFlags.SoftDependency)]
@@ -392,9 +392,9 @@ public sealed class RagnavikCompatPlugin : BaseUnityPlugin
             isAssignedBed);
     }
 
-    private static bool BeforeAssignedBedInteraction(Bed __instance, Humanoid user, bool hold, ref bool __result)
+    private static bool BeforeAssignedBedInteraction(Bed __instance, Humanoid __0, bool __1, ref bool __result)
     {
-        if (hold || user is not Player player || _afterdeathGhostStatus == null ||
+        if (__1 || __0 is not Player player || _afterdeathGhostStatus == null ||
             !AfterdeathDoorCompatibility.ShouldAllowInteraction(
                 player.m_customData.ContainsKey("Afterdeath Ghost"),
                 player.IsDead(),
