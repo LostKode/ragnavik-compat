@@ -2,8 +2,8 @@ using RagnavikCompat;
 using System.Reflection.Metadata;
 using System.Reflection.PortableExecutable;
 
-if (args.Length != 5)
-    throw new ArgumentException("Pass the installed EpicMMOSystem.dll, Afterdeath.dll, Starvation.dll, CurrencyPocket.dll and AzuExtendedPlayerInventory.dll for signature verification.");
+if (args.Length != 6)
+    throw new ArgumentException("Pass the installed EpicMMOSystem.dll, Afterdeath.dll, Starvation.dll, CurrencyPocket.dll, AzuExtendedPlayerInventory.dll and kg_ItemDrawers.dll for signature verification.");
 
 AssertTrue(EpicMmoReloadGuardCompatibility.Supports(new Version(1, 9, 68)), "supported EpicMMO version");
 AssertFalse(EpicMmoReloadGuardCompatibility.Supports(new Version(1, 9, 67)), "older EpicMMO version");
@@ -77,6 +77,12 @@ AssertFalse(CurrencyPocketTakeAllCompatibility.IsCoin("$item_amber", 1), "non-co
 AssertTrue(CurrencyPocketTakeAllCompatibility.TryAddBalance(25, 10, out var updatedBalance) && updatedBalance == 35, "coin balance addition");
 AssertFalse(CurrencyPocketTakeAllCompatibility.TryAddBalance(int.MaxValue, 1, out _), "coin balance overflow");
 Console.WriteLine("PASS: CurrencyPocket bridge is restricted to 1.0.15 and accepts only valid coin stacks");
+
+AssertTrue(ItemDrawersCustomDataCompatibility.Supports(new Version(1, 4, 0), true), "current ItemDrawers package API");
+AssertTrue(ItemDrawersCustomDataCompatibility.Supports(new Version(9, 9, 9), true), "future ItemDrawers package API");
+AssertFalse(ItemDrawersCustomDataCompatibility.Supports(new Version(1, 4, 0), false), "incompatible ItemDrawers API");
+AssertFalse(ItemDrawersCustomDataCompatibility.Supports(null, true), "missing ItemDrawers package");
+Console.WriteLine("PASS: custom-data bridge follows the ItemDrawers package API instead of pinning a version");
 
 using (var input = File.OpenRead(args[0]))
 using (var pe = new PEReader(input))
@@ -179,6 +185,28 @@ VerifyMethod(
     "get_GridPos",
     Array.Empty<string>(),
     "AzuExtendedPlayerInventory 2.5.1 SlotSnapshot.GridPos contract verified");
+
+VerifyMethod(
+    args[5],
+    "kg_ItemDrawers",
+    "DrawerComponent",
+    "UseItem",
+    new[] { "user", "item" },
+    "ItemDrawers DrawerComponent.UseItem(Humanoid, ItemData) contract verified");
+VerifyMethod(
+    args[5],
+    "kg_ItemDrawers",
+    "DrawerComponent",
+    "RPC_WithdrawItem_Request",
+    new[] { "sender", "amount" },
+    "ItemDrawers withdrawal RPC contract verified");
+VerifyMethod(
+    args[5],
+    "kg_ItemDrawers",
+    "Piece_OnDestroy_Patch",
+    "Postfix",
+    new[] { "__instance" },
+    "ItemDrawers destruction postfix contract verified");
 
 var folder = Path.Combine(Path.GetTempPath(), "ragnavik-epicmmo-guard-" + Guid.NewGuid().ToString("N"));
 Directory.CreateDirectory(folder);

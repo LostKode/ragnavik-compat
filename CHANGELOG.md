@@ -2,6 +2,7 @@
 
 | Version | Changes |
 | --- | --- |
+| 1.0.12 | Preserve cooked food, magic reagents, upgrades, and other custom-data items in ItemDrawers. Follow the ItemDrawers package API across compatible updates instead of pinning one version. |
 | 1.0.11 | Restore recovered AzuEPI items to their original quick slots after a successful grave Take All. |
 | 1.0.10 | Allow Afterdeath spirits to operate permitted doors through Valheim's normal ward and access checks and resurrect at their own assigned bed while keeping other interactions blocked. |
 | 1.0.9 | Keep Take All coverage active for every Epic Loot and MagicPlugin item across mod updates while retaining Valheim API signature validation. |

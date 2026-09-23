@@ -8,7 +8,7 @@
     <BepInExCoreDir Condition="'$(BepInExCoreDir)' == ''">$(MSBuildProjectDirectory)/../../../references/BepInEx</BepInExCoreDir>
     <AssemblyName>RagnavikCompat</AssemblyName>
     <RootNamespace>RagnavikCompat</RootNamespace>
-    <Version>1.0.11</Version>
+    <Version>1.0.12</Version>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="BepInEx">

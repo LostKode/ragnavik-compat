@@ -12,7 +12,7 @@ using UnityEngine.Rendering;
 
 namespace RagnavikCompat;
 
-[BepInPlugin(PluginGuid, "Ragnavik Compatibility", "1.0.11")]
+[BepInPlugin(PluginGuid, "Ragnavik Compatibility", "1.0.12")]
 [BepInDependency("WackyMole.EpicMMOSystem", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("org.bepinex.plugins.afterdeath", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("org.bepinex.plugins.starvation", BepInDependency.DependencyFlags.SoftDependency)]
@@ -20,6 +20,7 @@ namespace RagnavikCompat;
 [BepInDependency("blacks7ar.MagicPlugin", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("Azumatt.CurrencyPocket", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("Azumatt.AzuExtendedPlayerInventory", BepInDependency.DependencyFlags.SoftDependency)]
+[BepInDependency(ItemDrawersCustomDataCompatibility.PluginGuid, BepInDependency.DependencyFlags.SoftDependency)]
 public sealed class RagnavikCompatPlugin : BaseUnityPlugin
 {
     public const string PluginGuid = "lostkode.ragnavik.compat";
@@ -60,6 +61,7 @@ public sealed class RagnavikCompatPlugin : BaseUnityPlugin
         EnableAzuEpiQuickSlotRecoveryCompatibility();
         EnableEpicLootMagicPluginTakeAllCompatibility();
         EnableCurrencyPocketTakeAllCompatibility();
+        EnableItemDrawersCustomDataCompatibility();
 
         // The server pack is also installed on clients. Never alter their EpicMMO watcher.
         if (SystemInfo.graphicsDeviceType != GraphicsDeviceType.Null)
@@ -114,6 +116,25 @@ public sealed class RagnavikCompatPlugin : BaseUnityPlugin
         _takeAllBridgeEnabled = true;
         EnsureTakeAllPatch(moveAll);
         Logger.LogInfo("Epic Loot and MagicPlugin Take All bridge is active for all container contents.");
+    }
+
+    private void EnableItemDrawersCustomDataCompatibility()
+    {
+        if (!Chainloader.PluginInfos.TryGetValue(ItemDrawersCustomDataCompatibility.PluginGuid, out var itemDrawersPlugin))
+        {
+            Logger.LogInfo("ItemDrawers custom-data bridge skipped because kg.ItemDrawers is not installed.");
+            return;
+        }
+
+        var hasRequiredApi = ItemDrawersCustomDataBridge.HasRequiredApi();
+        if (!ItemDrawersCustomDataCompatibility.Supports(itemDrawersPlugin.Metadata.Version, hasRequiredApi))
+        {
+            Logger.LogInfo($"ItemDrawers custom-data bridge skipped because kg.ItemDrawers {itemDrawersPlugin.Metadata.Version} does not expose the required drawer API. Review its changelog before adapting this module.");
+            return;
+        }
+
+        if (ItemDrawersCustomDataBridge.TryEnable(_harmony!, Logger))
+            Logger.LogInfo($"ItemDrawers custom-data bridge is active for kg.ItemDrawers {itemDrawersPlugin.Metadata.Version}. Cooked food, magic reagents, upgrades, and other custom-data items retain their data in drawers.");
     }
 
     private void EnableCurrencyPocketTakeAllCompatibility()
