@@ -2,8 +2,8 @@ using RagnavikCompat;
 using System.Reflection.Metadata;
 using System.Reflection.PortableExecutable;
 
-if (args.Length != 6)
-    throw new ArgumentException("Pass the installed EpicMMOSystem.dll, Afterdeath.dll, Starvation.dll, CurrencyPocket.dll, AzuExtendedPlayerInventory.dll and kg_ItemDrawers.dll for signature verification.");
+if (args.Length != 7)
+    throw new ArgumentException("Pass the installed EpicMMOSystem.dll, Afterdeath.dll, Starvation.dll, CurrencyPocket.dll, AzuExtendedPlayerInventory.dll, kg_ItemDrawers.dll and the built RagnavikCompat.dll for signature verification.");
 
 AssertTrue(EpicMmoReloadGuardCompatibility.Supports(new Version(1, 9, 68)), "supported EpicMMO version");
 AssertFalse(EpicMmoReloadGuardCompatibility.Supports(new Version(1, 9, 67)), "older EpicMMO version");
@@ -207,6 +207,15 @@ VerifyMethod(
     "Postfix",
     new[] { "__instance" },
     "ItemDrawers destruction postfix contract verified");
+
+VerifyMethod(
+    args[6],
+    "RagnavikCompat",
+    "RagnavikCompatPlugin",
+    "BeforeAfterdeathInteractionBlock",
+    new[] { "__0", "hover" },
+    "Ragnavik interaction bridge binds the static Afterdeath player argument positionally");
+
 
 var folder = Path.Combine(Path.GetTempPath(), "ragnavik-epicmmo-guard-" + Guid.NewGuid().ToString("N"));
 Directory.CreateDirectory(folder);
