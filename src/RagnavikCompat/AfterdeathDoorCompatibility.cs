@@ -2,7 +2,7 @@ namespace RagnavikCompat;
 
 public static class AfterdeathDoorCompatibility
 {
-    public static readonly System.Version SupportedAfterdeathVersion = new(1, 0, 10);
+    public static readonly System.Version SupportedAfterdeathVersion = new(1, 0, 11);
 
     public static bool Supports(System.Version? afterdeathVersion) =>
         afterdeathVersion == SupportedAfterdeathVersion;

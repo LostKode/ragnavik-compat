@@ -31,19 +31,19 @@ The database uses exact prefab names from the installed assemblies and remains h
 
 ### Afterdeath starvation guard
 
-When Afterdeath 1.0.10 and Starvation 1.0.5 are both installed, the runtime plugin prevents Starvation's health drain routine from running while a player is an Afterdeath spirit. Normal starvation resumes after resurrection.
+When Afterdeath 1.0.11 and Starvation 1.0.5 are both installed, the runtime plugin prevents Starvation's health drain routine from running while a player is an Afterdeath spirit. Normal starvation resumes after resurrection.
 
 The module remains inactive when either mod is absent, when either version differs, or when Starvation's expected `DamagePlayer.Prefix(Player, float, bool)` signature is missing.
 
 ### Afterdeath spirit travel bridge
 
-When Afterdeath 1.0.10 is installed, spirits can use Valheim teleport transitions. This allows corpse recovery through dungeon entrances and permits ordinary portal travel while in spirit form. Afterdeath continues to control resurrection, spirit movement, exploration, combat, and other interactions.
+When Afterdeath 1.0.11 is installed, spirits can use Valheim teleport transitions. This allows corpse recovery through dungeon entrances and permits ordinary portal travel while in spirit form. Afterdeath continues to control resurrection, spirit movement, exploration, combat, and other interactions.
 
 The module remains inactive when Afterdeath is absent, when its version differs, or when its expected `DisableTeleport.Prefix()` signature changes.
 
 ### Afterdeath spirit home access
 
-When Afterdeath 1.0.10 is installed, spirits can operate doors and interact with their own assigned bed. Doors still run through Valheim's normal interaction path, so private ward allow lists remain authoritative. Interacting with the player's assigned bed resurrects that spirit. Other players' beds, containers, crafting stations, pickups, and all other interactions remain blocked by Afterdeath.
+When Afterdeath 1.0.11 is installed, spirits can operate doors and interact with their own assigned bed. Doors still run through Valheim's normal interaction path, so private ward allow lists remain authoritative. Interacting with the player's assigned bed resurrects that spirit. Other players' beds, containers, crafting stations, pickups, and all other interactions remain blocked by Afterdeath.
 
 The module remains inactive when Afterdeath is absent, when its version differs, or when Afterdeath's interaction blocker, ghost status field, or Valheim's expected bed interaction signature changes.
 
@@ -55,7 +55,7 @@ The module remains inactive when AzuEPI is absent, when its version differs, or 
 
 ### Afterdeath nearest-bed spawn
 
-When Afterdeath 1.0.10 is installed and a player has a valid bed spawn, the runtime plugin compares that bed with Afterdeath's nearest Skathi using horizontal distance from the death point. The player respawns at the bed only when it is strictly closer; equal distances continue to use Skathi.
+When Afterdeath 1.0.11 is installed and a player has a valid bed spawn, the runtime plugin compares that bed with Afterdeath's nearest Skathi using horizontal distance from the death point. The player respawns at the bed only when it is strictly closer; equal distances continue to use Skathi.
 
 The module remains inactive when Afterdeath is absent, when its version differs, or when its expected `Utils.GetClosestLocation(Vector3)` signature changes. Invalid or destroyed bed spawns continue through Valheim's normal validation and do not replace Skathi.
 

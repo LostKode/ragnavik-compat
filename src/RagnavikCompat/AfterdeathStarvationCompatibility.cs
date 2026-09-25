@@ -2,7 +2,7 @@ namespace RagnavikCompat;
 
 public static class AfterdeathStarvationCompatibility
 {
-    public static readonly System.Version SupportedAfterdeathVersion = new(1, 0, 10);
+    public static readonly System.Version SupportedAfterdeathVersion = new(1, 0, 11);
     public static readonly System.Version SupportedStarvationVersion = new(1, 0, 5);
 
     public static bool Supports(System.Version? afterdeathVersion, System.Version? starvationVersion) =>

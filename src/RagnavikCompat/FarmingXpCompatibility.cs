@@ -172,7 +172,7 @@ internal static class FarmingXpCompatibility
     private static void EnableBulkPlacement(Harmony harmony, ManualLogSource logger)
     {
         if (!Chainloader.PluginInfos.TryGetValue("advize.PlantEasily", out var plugin) ||
-            plugin.Metadata.Version != new System.Version(2, 2, 1)) return;
+            plugin.Metadata.Version != new System.Version(2, 2, 2)) return;
         var type = plugin.Instance.GetType().Assembly.GetType("Advize_PlantEasily.PlacementController");
         var method = type == null ? null : AccessTools.Method(type, "PlacePiece", new[] { typeof(Player), typeof(GameObject), typeof(GameObject) });
         if (method?.ReturnType != typeof(void))
