@@ -2,7 +2,8 @@
 
 | Version | Changes |
 | --- | --- |
-| 1.0.17 | Award normal Foraging XP per item successfully extracted from full or partial Flora Collectors, using the profession XP multiplier. Prevent rewards for failed or empty interactions. |
+| 1.0.18 | Award normal Foraging XP per item successfully extracted from full or partial Flora Collectors, using the profession XP multiplier. Prevent rewards for failed or empty interactions. |
+| 1.0.17 | Add 60 missing EpicMMO creature mappings, including level-8 Meadows skeletons and level-15 wild Black Forest roots. Match later-biome and sleeping variants to existing progression; summoned companions and offspring grant no kill XP. Preserve the previous 37 mod mappings and validate creature coverage. |
 | 1.0.16 | Use the current game successful-placement API so the farming XP bridge activates. |
 | 1.0.15 | Award base XP per confirmed harvest without the bulk-harvest cooldown; respect the pickup XP toggle. Award base XP for successful single and PlantEasily bulk crop planting. Skip Farming skill updates for invalid planting previews.  Revalidate spirit recovery for Afterdeath 1.0.11 and bulk planting for PlantEasily 2.2.2. |
 | 1.0.14 | Restore all hover prompts and interactions by binding the player argument positionally in the Afterdeath interaction bridge. |

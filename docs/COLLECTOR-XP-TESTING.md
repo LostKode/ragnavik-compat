@@ -1,4 +1,4 @@
-# Collector XP verification — unreleased 1.0.17
+# Collector XP verification — unreleased 1.0.18
 
 Branch: `fix/collector-foraging-xp`  
 Worktree: `/tmp/ragnavik-farming-compat`  
