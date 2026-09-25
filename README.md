@@ -10,6 +10,11 @@ For FloraCollector 1.1.4 with Foraging 1.0.11, successful extraction grants one 
 
 Awards use Foraging's normal skill path and XP setting. With Ragnavik Gameplay 1.0.5, selected professions receive 100% and unselected professions receive 50%. This bridge does not apply an additional multiplier. Install the matched compatibility and gameplay versions on all clients and the server during an authorized release.
 
+### Cart bumper signs
+
+With CraftyCarts 3.2.3 and BoardersBumperBlurbs 1.0.3 installed, cart signs use their owning cart network view regardless of patch order. Converted CraftyCarts sign text uses the vanilla sign font before activation. This module disables itself for other mod versions or changed APIs.
+
+
 ### ItemDrawers custom-data bridge
 
 When kg.ItemDrawers is installed and exposes the expected drawer API, cooked food, magic reagents, upgrades, and other items with custom data can be deposited and withdrawn without losing their per-item metadata. Custom-data records are persisted on the drawer ZDO and restored exactly when withdrawn. Automatic drawer pickup leaves custom-data drops on the ground so it cannot route them through ItemDrawers original lossy bulk path.

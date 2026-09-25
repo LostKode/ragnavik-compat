@@ -1,4 +1,4 @@
-# Collector XP verification — unreleased 1.0.18
+# Collector XP verification — unreleased 1.0.19
 
 Branch: `fix/collector-foraging-xp`  
 Worktree: `/tmp/ragnavik-farming-compat`  
@@ -23,4 +23,4 @@ The focused local profile contains this compatibility build, published Gameplay 
 4. With matching builds on a test host and client, collect from an object owned by another peer. Only the collecting player should receive XP.
 5. Have two players request the same collection; only the successful extraction should reward XP.
 
-No in-game test has been claimed. Nothing from this branch has been pushed, published or deployed. Future coordinated release must bump Shared, Client and Server dependencies and regenerate inventories/anti-cheat policy before publication. The already published Gameplay 1.0.5 is required for the profession rates and remains pending live deployment.
+In-game verification remains outstanding. Publication is authorized; live deployment remains on hold. Future coordinated release must bump Shared, Client and Server dependencies and regenerate inventories/anti-cheat policy before publication. The already published Gameplay 1.0.5 is required for the profession rates and remains pending live deployment.
