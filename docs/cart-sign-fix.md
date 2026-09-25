@@ -10,8 +10,6 @@ Build with the existing Windows SDK and installed game/BepInEx reference directo
 
 Manual regression: in the isolated Gale profile and local galetest1 world, load a CraftyCart, edit its bumper sign, unload/reload it, and verify persistence. Repeat with the vanilla cart bumper and a placed vanilla sign. Verify no Sign.Awake exception or LiberationSans warning. Both bumper mods must remain installed.
 
-## Prepared test profile
+## Validation
 
-Branch: `fix/crafty-cart-sign`; worktree: `/tmp/ragnavik-crafty-cart-sign`; Gale profile: `fix-crafty-cart-sign`. Full Client Pack 1.1.56 dependencies are preserved. Local Compatibility 1.0.17 and Test-mode UI 1.2.15 were imported with Gale. Gale retains published package metadata; their superseded DLLs are backed up with `.dll.disabled` extensions to prevent duplicate plugin GUID loading. Do not reinstall or update those published packages in this profile without repeating override verification.
-
-Validation: Release build passed (two existing reference-version warnings), three binary contract checks passed, all existing compatibility regression assertions passed, package layout validation passed, and installed compatibility SHA-256 matches the build. Game rendering/edit/reload verification is pending.
+Release build, binary contract checks, existing compatibility regressions, and package validation pass. The earlier local test artifact was labelled 1.0.17; the release is 1.0.18 because the creature-level release claimed 1.0.17 in the meantime. In-game loading, editing, and persistence verification remain pending.
