@@ -4,6 +4,12 @@ Ragnavik Compatibility contains independently guarded fixes between mods in the 
 
 ## Modules
 
+### Flora Collector Foraging XP
+
+For FloraCollector 1.1.4 with Foraging 1.0.11, successful extraction grants one normal Foraging award per item, including partial collectors. Rewards go to the player who collected the items after the owner confirms extraction. Empty, failed, and repeated extraction attempts do not grant XP. This replaces the upstream full-collector interaction reward.
+
+Awards use Foraging's normal skill path and XP setting. With Ragnavik Gameplay 1.0.5, selected professions receive 100% and unselected professions receive 50%. This bridge does not apply an additional multiplier. Install the matched compatibility and gameplay versions on all clients and the server during an authorized release.
+
 ### ItemDrawers custom-data bridge
 
 When kg.ItemDrawers is installed and exposes the expected drawer API, cooked food, magic reagents, upgrades, and other items with custom data can be deposited and withdrawn without losing their per-item metadata. Custom-data records are persisted on the drawer ZDO and restored exactly when withdrawn. Automatic drawer pickup leaves custom-data drops on the ground so it cannot route them through ItemDrawers original lossy bulk path.
