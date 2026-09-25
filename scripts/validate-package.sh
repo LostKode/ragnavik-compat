@@ -6,7 +6,7 @@ if [ "$#" -ne 1 ]; then
   exit 2
 fi
 
-python3 - "$1" <<'PY'
+python3 - "$1" "$(dirname "$0")/.." <<'PY'
 from pathlib import Path
 import sys
 import zipfile
@@ -39,19 +39,8 @@ forbidden = [
 ]
 if forbidden:
     raise SystemExit(f"forbidden package entries: {sorted(forbidden)}")
-if len(creatures) != 37:
-    raise SystemExit(f"expected 37 Ragnavik creature mappings, found {len(creatures)}")
-creature_names = [entry.get("name") for entry in creatures]
-if len(set(creature_names)) != len(creature_names):
-    raise SystemExit("Ragnavik creature mappings contain duplicate prefab names")
-for entry in creatures:
-    if set(entry) != {"name", "minExp", "maxExp", "level"}:
-        raise SystemExit(f"invalid creature mapping fields: {entry}")
-    if not isinstance(entry["name"], str) or not entry["name"]:
-        raise SystemExit(f"invalid creature prefab name: {entry}")
-    if not all(isinstance(entry[key], int) for key in ("minExp", "maxExp", "level")):
-        raise SystemExit(f"non-integer creature mapping: {entry}")
-    if entry["minExp"] < 0 or entry["maxExp"] < entry["minExp"] or entry["level"] < 0:
-        raise SystemExit(f"invalid creature progression values: {entry}")
+sys.path.insert(0, str(Path(sys.argv[2]).resolve() / "scripts"))
+from validate_creatures import validate, SNAPSHOT
+validate(creatures, json.loads(SNAPSHOT.read_text()))
 print(f"package layout valid: {archive}")
 PY
