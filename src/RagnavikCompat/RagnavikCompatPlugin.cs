@@ -12,8 +12,10 @@ using UnityEngine.Rendering;
 
 namespace RagnavikCompat;
 
-[BepInPlugin(PluginGuid, "Ragnavik Compatibility", "1.0.14")]
+[BepInPlugin(PluginGuid, "Ragnavik Compatibility", "1.0.15")]
 [BepInDependency("WackyMole.EpicMMOSystem", BepInDependency.DependencyFlags.SoftDependency)]
+[BepInDependency("org.bepinex.plugins.farming", BepInDependency.DependencyFlags.SoftDependency)]
+[BepInDependency("advize.PlantEasily", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("org.bepinex.plugins.afterdeath", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("org.bepinex.plugins.starvation", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("randyknapp.mods.epicloot", BepInDependency.DependencyFlags.SoftDependency)]
@@ -54,6 +56,7 @@ public sealed class RagnavikCompatPlugin : BaseUnityPlugin
     {
         _instance = this;
         _harmony = new Harmony(PluginGuid);
+        FarmingXpCompatibility.Enable(_harmony, Logger);
         EnableAfterdeathStarvationCompatibility();
         EnableAfterdeathTeleportCompatibility();
         EnableAfterdeathDoorCompatibility();
@@ -640,6 +643,7 @@ public sealed class RagnavikCompatPlugin : BaseUnityPlugin
 
     private void OnDestroy()
     {
+        FarmingXpCompatibility.Disable();
         _harmony?.UnpatchSelf();
         if (ReferenceEquals(_instance, this))
             _instance = null;
