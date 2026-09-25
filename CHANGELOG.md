@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Add 60 missing creature level mappings, including Valheim 1.0 meadow skeletons and wild Black Forest roots. Preserve the 37 existing mod mappings and validate complete game-prefab coverage with documented exclusions.
+
 | Version | Changes |
 | --- | --- |
 | 1.0.16 | Use the current game successful-placement API so the farming XP bridge activates. |

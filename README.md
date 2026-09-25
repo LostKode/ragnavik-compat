@@ -27,6 +27,8 @@ The module remains inactive when CurrencyPocket is absent, when its version diff
 
 The package installs an additional EpicMMO creature database for the creature prefabs currently supplied by SeaAnimals 0.3.8, OdinBear 1.4.9, OdinHorse 1.7.2, OdinMounts 0.1.5, BottledNeck 0.3.3, BeeQueen 1.1.2, and GoodestBoy 0.3.7. Levels follow each creature's configured biome and combat strength. Wild creatures award experience, while companion creatures and offspring use zero experience values to prevent farming pets for progression.
 
+The supplement also covers Valheim 1.0 biome skeletons, wild roots, sleeping variants, frost creatures, boss phases and summons. See [the creature audit](docs/CREATURE_LEVELS.md) for levels, rewards and exclusions.
+
 The database uses exact prefab names from the installed assemblies and remains harmless when an owning mod is absent. Review and update the mappings whenever one of those creature mods changes version.
 
 ### Afterdeath starvation guard
