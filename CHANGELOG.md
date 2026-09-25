@@ -2,6 +2,7 @@
 
 | Version | Changes |
 | --- | --- |
+| 1.0.15 | Award base XP per confirmed harvest without the bulk-harvest cooldown; respect the pickup XP toggle. Award base XP for successful single and PlantEasily bulk crop planting. Skip Farming skill updates for invalid planting previews. |
 | 1.0.14 | Restore all hover prompts and interactions by binding the player argument positionally in the Afterdeath interaction bridge. |
 | 1.0.13 | Bind the Afterdeath assigned-bed interaction patch by argument position so current Valheim startup completes without a Harmony parameter-name failure. |
 | 1.0.12 | Preserve cooked food, magic reagents, upgrades, and other custom-data items in ItemDrawers. Follow the ItemDrawers package API across compatible updates instead of pinning one version. |

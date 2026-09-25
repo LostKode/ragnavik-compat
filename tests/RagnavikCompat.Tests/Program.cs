@@ -2,8 +2,8 @@ using RagnavikCompat;
 using System.Reflection.Metadata;
 using System.Reflection.PortableExecutable;
 
-if (args.Length != 7)
-    throw new ArgumentException("Pass the installed EpicMMOSystem.dll, Afterdeath.dll, Starvation.dll, CurrencyPocket.dll, AzuExtendedPlayerInventory.dll, kg_ItemDrawers.dll and the built RagnavikCompat.dll for signature verification.");
+if (args.Length != 10)
+    throw new ArgumentException("Pass the installed EpicMMOSystem.dll, Afterdeath.dll, Starvation.dll, CurrencyPocket.dll, AzuExtendedPlayerInventory.dll, kg_ItemDrawers.dll the built RagnavikCompat.dll, Farming.dll, Advize_PlantEasily.dll and assembly_valheim.dll for signature verification.");
 
 AssertTrue(EpicMmoReloadGuardCompatibility.Supports(new Version(1, 9, 68)), "supported EpicMMO version");
 AssertFalse(EpicMmoReloadGuardCompatibility.Supports(new Version(1, 9, 67)), "older EpicMMO version");
@@ -216,6 +216,17 @@ VerifyMethod(
     new[] { "__0", "hover" },
     "Ragnavik interaction bridge binds the static Afterdeath player argument positionally");
 
+
+VerifyMethod(args[0], "", "PickablePickMMOWacky", "Postfix", new[] { "__instance" }, "EpicMMO harvest hook contract verified");
+VerifyMethod(args[0], "", "Player_placepiece_patch_epicmmoA", "Postfix", new[] { "__instance", "piece" }, "EpicMMO planting hook contract verified");
+VerifyMethod(args[0], "API", "EMMOS_API", "AddExp", new[] { "exp" }, "EpicMMO XP API verified");
+VerifyMethod(args[0], "EpicMMOSystem", "DataMonsters", "contains", new[] { "name" }, "EpicMMO reward lookup verified");
+VerifyMethod(args[7], "", "SaveSkillLevel", "Postfix", new[] { "__instance" }, "Farming preview hook verified");
+VerifyMethod(args[8], "Advize_PlantEasily", "PlacementController", "PlacePiece", new[] { "player", "go", "piecePrefab" }, "PlantEasily successful-placement hook verified");
+VerifyMethod(args[9], "", "Pickable", "RPC_Pick", new[] { "sender", "bonus" }, "Owner-side harvest RPC verified");
+VerifyField(args[9], "", "Pickable", "m_picked", "Authoritative picked state exists");
+VerifyField(args[9], "", "Pickable", "m_pickedLocal", "Local request state exists");
+VerifyMethod(args[6], "RagnavikCompat", "FarmingXpCompatibility", "ValidPlantOnly", new[] { "__0" }, "Preview guard binds original patch argument positionally");
 
 var folder = Path.Combine(Path.GetTempPath(), "ragnavik-epicmmo-guard-" + Guid.NewGuid().ToString("N"));
 Directory.CreateDirectory(folder);
