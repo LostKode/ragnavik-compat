@@ -14,9 +14,11 @@ namespace RagnavikCompat;
 
 [BepInDependency(CartSignCompatibility.CartsGuid, BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency(CartSignCompatibility.BumperGuid, BepInDependency.DependencyFlags.SoftDependency)]
-[BepInPlugin(PluginGuid, "Ragnavik Compatibility", "1.0.18")]
+[BepInPlugin(PluginGuid, "Ragnavik Compatibility", "1.0.19")]
 [BepInDependency("WackyMole.EpicMMOSystem", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("org.bepinex.plugins.farming", BepInDependency.DependencyFlags.SoftDependency)]
+[BepInDependency("blacks7ar.FloraCollector", BepInDependency.DependencyFlags.SoftDependency)]
+[BepInDependency("org.bepinex.plugins.foraging", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("advize.PlantEasily", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("org.bepinex.plugins.afterdeath", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("org.bepinex.plugins.starvation", BepInDependency.DependencyFlags.SoftDependency)]
@@ -60,6 +62,7 @@ public sealed class RagnavikCompatPlugin : BaseUnityPlugin
         _harmony = new Harmony(PluginGuid);
         CartSignCompatibility.Enable(_harmony, Logger);
         FarmingXpCompatibility.Enable(_harmony, Logger);
+        CollectorForagingCompatibility.Enable(Logger);
         EnableAfterdeathStarvationCompatibility();
         EnableAfterdeathTeleportCompatibility();
         EnableAfterdeathDoorCompatibility();
@@ -648,6 +651,7 @@ public sealed class RagnavikCompatPlugin : BaseUnityPlugin
     {
         CartSignCompatibility.Disable();
         FarmingXpCompatibility.Disable();
+        CollectorForagingCompatibility.Disable();
         _harmony?.UnpatchSelf();
         if (ReferenceEquals(_instance, this))
             _instance = null;

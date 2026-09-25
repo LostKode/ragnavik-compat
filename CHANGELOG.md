@@ -2,6 +2,7 @@
 
 | Version | Changes |
 | --- | --- |
+| 1.0.19 | Award normal Foraging XP per item successfully extracted from full or partial Flora Collectors, using the profession XP multiplier. Prevent rewards for failed or empty interactions. |
 | 1.0.18 | Fix CraftyCarts and BoardersBumperBlurbs sign initialization conflicts. Assign the vanilla sign font before activating converted cart text. |
 | 1.0.17 | Add 60 missing EpicMMO creature mappings, including level-8 Meadows skeletons and level-15 wild Black Forest roots. Match later-biome and sleeping variants to existing progression; summoned companions and offspring grant no kill XP. Preserve the previous 37 mod mappings and validate creature coverage. |
 | 1.0.16 | Use the current game successful-placement API so the farming XP bridge activates. |

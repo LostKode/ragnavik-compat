@@ -2,8 +2,26 @@ using RagnavikCompat;
 using System.Reflection.Metadata;
 using System.Reflection.PortableExecutable;
 
-if (args.Length != 10)
+if (args.Length != 10 && args.Length != 12)
     throw new ArgumentException("Pass the installed EpicMMOSystem.dll, Afterdeath.dll, Starvation.dll, CurrencyPocket.dll, AzuExtendedPlayerInventory.dll, kg_ItemDrawers.dll the built RagnavikCompat.dll, Farming.dll, Advize_PlantEasily.dll and assembly_valheim.dll for signature verification.");
+
+// A full collector and a partial collector both award per extracted unit.
+foreach (var (before, after, owner, expected) in new[] {
+    (10, 0, true, 10), (3, 0, true, 3), (0, 0, true, 0),
+    (10, 10, true, 0), (10, 5, true, 0), (10, 0, false, 0), (-1, 0, true, 0) })
+    AssertTrue(CollectorXpPolicy.ConfirmedUnits(before, after, owner) == expected, "collector confirmed reward");
+var first = CollectorXpPolicy.ConfirmedUnits(3, 0, true);
+var duplicate = CollectorXpPolicy.ConfirmedUnits(0, 0, true);
+AssertTrue(first + duplicate == 3, "repeated/concurrent extraction cannot reward an emptied collector");
+Console.WriteLine("PASS: full, partial, empty, failed, non-owner and repeated collector extraction rewards");
+if (args.Length == 12)
+{
+VerifyMethod(args[10], "FloraCollector.Function", "Collector", "RPC_Extract", new[] { "caller" }, "Collector extraction RPC contract", SignatureTypeCode.Void);
+VerifyMethod(args[10], "FloraCollector.Function", "Collector", "GetLevel", Array.Empty<string>(), "Collector count contract", SignatureTypeCode.Int32);
+VerifyMethod(args[10], "FloraCollector.Function", "Patches", "Interact_Prefix", new[] { "__instance", "character" }, "Upstream collector reward hook contract", SignatureTypeCode.Void);
+VerifyMethod(args[11], "", "PlayerAwake", "Postfix", new[] { "__instance" }, "Foraging player RPC registration contract", SignatureTypeCode.Void);
+}
+
 
 AssertTrue(EpicMmoReloadGuardCompatibility.Supports(new Version(1, 9, 68)), "supported EpicMMO version");
 AssertFalse(EpicMmoReloadGuardCompatibility.Supports(new Version(1, 9, 67)), "older EpicMMO version");

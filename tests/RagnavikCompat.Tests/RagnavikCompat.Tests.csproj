@@ -6,6 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="../../src/RagnavikCompat/CollectorXpPolicy.cs" Link="CollectorXpPolicy.cs" />
     <Compile Include="../../src/RagnavikCompat/EpicMmoReloadGuardCompatibility.cs" Link="EpicMmoReloadGuardCompatibility.cs" />
     <Compile Include="../../src/RagnavikCompat/JsonFolderFingerprint.cs" Link="JsonFolderFingerprint.cs" />
     <Compile Include="../../src/RagnavikCompat/AfterdeathStarvationCompatibility.cs" Link="AfterdeathStarvationCompatibility.cs" />

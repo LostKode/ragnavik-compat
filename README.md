@@ -4,6 +4,12 @@ Ragnavik Compatibility contains independently guarded fixes between mods in the 
 
 ## Modules
 
+### Flora Collector Foraging XP
+
+For FloraCollector 1.1.4 with Foraging 1.0.11, successful extraction grants one normal Foraging award per item, including partial collectors. Rewards go to the player who collected the items after the owner confirms extraction. Empty, failed, and repeated extraction attempts do not grant XP. This replaces the upstream full-collector interaction reward.
+
+Awards use Foraging's normal skill path and XP setting. With Ragnavik Gameplay 1.0.5, selected professions receive 100% and unselected professions receive 50%. This bridge does not apply an additional multiplier. Install the matched compatibility and gameplay versions on all clients and the server during an authorized release.
+
 ### Cart bumper signs
 
 With CraftyCarts 3.2.3 and BoardersBumperBlurbs 1.0.3 installed, cart signs use their owning cart network view regardless of patch order. Converted CraftyCarts sign text uses the vanilla sign font before activation. This module disables itself for other mod versions or changed APIs.
