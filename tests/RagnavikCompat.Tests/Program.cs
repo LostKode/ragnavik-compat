@@ -228,6 +228,8 @@ VerifyField(args[9], "", "Pickable", "m_picked", "Authoritative picked state exi
 VerifyField(args[9], "", "Pickable", "m_pickedLocal", "Local request state exists");
 VerifyMethod(args[6], "RagnavikCompat", "FarmingXpCompatibility", "ValidPlantOnly", new[] { "__0" }, "Preview guard binds original patch argument positionally");
 
+VerifyMethod(args[9], "", "Player", "TryPlacePiece", new[] { "piece" }, "Successful placement returns a boolean", SignatureTypeCode.Boolean);
+
 var folder = Path.Combine(Path.GetTempPath(), "ragnavik-epicmmo-guard-" + Guid.NewGuid().ToString("N"));
 Directory.CreateDirectory(folder);
 try
@@ -297,7 +299,7 @@ static void VerifyField(string assemblyPath, string typeNamespace, string typeNa
     Console.WriteLine("PASS: " + successMessage);
 }
 
-static void VerifyMethod(string assemblyPath, string typeNamespace, string typeName, string methodName, string[] expectedParameters, string successMessage)
+static void VerifyMethod(string assemblyPath, string typeNamespace, string typeName, string methodName, string[] expectedParameters, string successMessage, SignatureTypeCode? expectedReturn = null)
 {
     using var input = File.OpenRead(assemblyPath);
     using var pe = new PEReader(input);
@@ -311,6 +313,15 @@ static void VerifyMethod(string assemblyPath, string typeNamespace, string typeN
         .ToArray();
     if (methods.Length != 1)
         throw new Exception($"Expected one {typeNamespace}.{typeName}.{methodName} method, found {methods.Length}.");
+    if (expectedReturn != null)
+    {
+        var signature = metadata.GetBlobReader(methods[0].Signature);
+        var header = signature.ReadSignatureHeader();
+        if (header.IsGeneric) signature.ReadCompressedInteger();
+        signature.ReadCompressedInteger();
+        if (signature.ReadSignatureTypeCode() != expectedReturn)
+            throw new Exception($"Unexpected return type for {typeName}.{methodName}");
+    }
     var parameters = methods[0].GetParameters()
         .Select(handle => metadata.GetString(metadata.GetParameter(handle).Name))
         .Where(name => name != "")

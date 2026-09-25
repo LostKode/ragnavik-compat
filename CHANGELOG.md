@@ -2,6 +2,7 @@
 
 | Version | Changes |
 | --- | --- |
+| 1.0.16 | Use the current game successful-placement API so the farming XP bridge activates. |
 | 1.0.15 | Award base XP per confirmed harvest without the bulk-harvest cooldown; respect the pickup XP toggle. Award base XP for successful single and PlantEasily bulk crop planting. Skip Farming skill updates for invalid planting previews.  Revalidate spirit recovery for Afterdeath 1.0.11 and bulk planting for PlantEasily 2.2.2. |
 | 1.0.14 | Restore all hover prompts and interactions by binding the player argument positionally in the Afterdeath interaction bridge. |
 | 1.0.13 | Bind the Afterdeath assigned-bed interaction patch by argument position so current Valheim startup completes without a Harmony parameter-name failure. |

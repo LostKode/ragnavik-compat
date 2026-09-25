@@ -68,7 +68,7 @@ internal static class FarmingXpCompatibility
         var oldPlacement = placement == null ? null : AccessTools.Method(placement, "Postfix", new[] { typeof(Player), typeof(Piece) });
         var pick = AccessTools.Method(typeof(Pickable), "RPC_Pick", new[] { typeof(long), typeof(int) });
         var interact = AccessTools.Method(typeof(Pickable), "Interact", new[] { typeof(Humanoid), typeof(bool), typeof(bool) });
-        var place = AccessTools.Method(typeof(Player), "PlacePiece");
+        var place = AccessTools.Method(typeof(Player), "TryPlacePiece", new[] { typeof(Piece) });
         var sceneAwake = AccessTools.Method(typeof(ZNetScene), "Awake");
         var sceneDestroy = AccessTools.Method(typeof(ZNetScene), "OnDestroy");
         if (sceneAwake == null || sceneDestroy == null || contains?.ReturnType != typeof(bool) || getExp?.ReturnType != typeof(int) || addExp?.ReturnType != typeof(void) ||
