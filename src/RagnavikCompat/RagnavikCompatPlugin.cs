@@ -12,7 +12,7 @@ using UnityEngine.Rendering;
 
 namespace RagnavikCompat;
 
-[BepInPlugin(PluginGuid, "Ragnavik Compatibility", "1.0.16")]
+[BepInPlugin(PluginGuid, "Ragnavik Compatibility", "1.0.17")]
 [BepInDependency("WackyMole.EpicMMOSystem", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("org.bepinex.plugins.farming", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("advize.PlantEasily", BepInDependency.DependencyFlags.SoftDependency)]
