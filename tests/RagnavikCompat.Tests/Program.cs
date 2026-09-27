@@ -26,15 +26,19 @@ VerifyMethod(args[11], "", "PlayerAwake", "Postfix", new[] { "__instance" }, "Fo
 AssertTrue(EpicMmoReloadGuardCompatibility.Supports(new Version(1, 9, 68)), "supported EpicMMO version");
 AssertFalse(EpicMmoReloadGuardCompatibility.Supports(new Version(1, 9, 67)), "older EpicMMO version");
 AssertFalse(EpicMmoReloadGuardCompatibility.Supports(new Version(1, 9, 69)), "newer EpicMMO version");
+AssertTrue(EpicMmoReloadGuardCompatibility.Supports(new Version(1, 9, 70)), "updated EpicMMO version");
+AssertFalse(EpicMmoReloadGuardCompatibility.Supports(new Version(1, 9, 71)), "untested EpicMMO version");
 AssertFalse(EpicMmoReloadGuardCompatibility.Supports(null), "missing EpicMMO version");
-Console.WriteLine("PASS: reload guard is restricted to WackyEpicMMOSystem 1.9.68");
+Console.WriteLine("PASS: reload guard is restricted to WackyEpicMMOSystem 1.9.68/1.9.70");
 
 AssertTrue(AfterdeathStarvationCompatibility.Supports(new Version(1, 0, 11), new Version(1, 0, 5)), "supported Afterdeath and Starvation versions");
 AssertFalse(AfterdeathStarvationCompatibility.Supports(new Version(1, 0, 9), new Version(1, 0, 5)), "older Afterdeath version");
 AssertFalse(AfterdeathStarvationCompatibility.Supports(new Version(1, 0, 11), new Version(1, 0, 4)), "older Starvation version");
 AssertFalse(AfterdeathStarvationCompatibility.Supports(null, new Version(1, 0, 5)), "missing Afterdeath version");
 AssertFalse(AfterdeathStarvationCompatibility.Supports(new Version(1, 0, 11), null), "missing Starvation version");
-Console.WriteLine("PASS: starvation guard is restricted to Afterdeath 1.0.11 and Starvation 1.0.5");
+AssertTrue(AfterdeathStarvationCompatibility.Supports(new Version(1, 0, 12), new Version(1, 0, 5)), "updated Afterdeath starvation version");
+AssertFalse(AfterdeathStarvationCompatibility.Supports(new Version(1, 0, 13), new Version(1, 0, 5)), "untested Afterdeath starvation version");
+Console.WriteLine("PASS: starvation guard is restricted to Afterdeath 1.0.11/1.0.12 and Starvation 1.0.5");
 AssertFalse(AfterdeathStarvationCompatibility.ShouldRunStarvation(true, false), "living Afterdeath spirit");
 AssertTrue(AfterdeathStarvationCompatibility.ShouldRunStarvation(false, false), "ordinary living player");
 AssertTrue(AfterdeathStarvationCompatibility.ShouldRunStarvation(true, true), "dead player");
@@ -42,16 +46,18 @@ Console.WriteLine("PASS: starvation runs normally except while the player is an 
 
 AssertTrue(AfterdeathTeleportCompatibility.Supports(new Version(1, 0, 11)), "supported Afterdeath teleport version");
 AssertFalse(AfterdeathTeleportCompatibility.Supports(new Version(1, 0, 9)), "older Afterdeath teleport version");
-AssertFalse(AfterdeathTeleportCompatibility.Supports(new Version(1, 0, 12)), "newer Afterdeath teleport version");
+AssertFalse(AfterdeathTeleportCompatibility.Supports(new Version(1, 0, 13)), "newer Afterdeath teleport version");
+AssertTrue(AfterdeathTeleportCompatibility.Supports(new Version(1, 0, 12)), "updated Afterdeath Teleport version");
 AssertFalse(AfterdeathTeleportCompatibility.Supports(null), "missing Afterdeath teleport version");
 AssertTrue(AfterdeathTeleportCompatibility.ShouldAllowTeleport(true, false), "living Afterdeath spirit teleport");
 AssertFalse(AfterdeathTeleportCompatibility.ShouldAllowTeleport(false, false), "ordinary living player teleport override");
 AssertFalse(AfterdeathTeleportCompatibility.ShouldAllowTeleport(true, true), "dead player teleport override");
-Console.WriteLine("PASS: teleport override is restricted to living Afterdeath spirits on Afterdeath 1.0.11");
+Console.WriteLine("PASS: teleport override is restricted to living Afterdeath spirits on Afterdeath 1.0.11/1.0.12");
 
 AssertTrue(AfterdeathDoorCompatibility.Supports(new Version(1, 0, 11)), "supported Afterdeath door version");
 AssertFalse(AfterdeathDoorCompatibility.Supports(new Version(1, 0, 9)), "older Afterdeath door version");
-AssertFalse(AfterdeathDoorCompatibility.Supports(new Version(1, 0, 12)), "newer Afterdeath door version");
+AssertFalse(AfterdeathDoorCompatibility.Supports(new Version(1, 0, 13)), "newer Afterdeath door version");
+AssertTrue(AfterdeathDoorCompatibility.Supports(new Version(1, 0, 12)), "updated Afterdeath Door version");
 AssertFalse(AfterdeathDoorCompatibility.Supports(null), "missing Afterdeath door version");
 AssertTrue(AfterdeathDoorCompatibility.ShouldAllowInteraction(true, false, true, false), "living Afterdeath spirit door");
 AssertFalse(AfterdeathDoorCompatibility.ShouldAllowInteraction(true, false, false, false), "living Afterdeath spirit non-door");
@@ -59,11 +65,12 @@ AssertFalse(AfterdeathDoorCompatibility.ShouldAllowInteraction(false, false, tru
 AssertFalse(AfterdeathDoorCompatibility.ShouldAllowInteraction(true, true, true, false), "dead player door");
 AssertTrue(AfterdeathDoorCompatibility.ShouldAllowInteraction(true, false, false, true), "living Afterdeath spirit assigned bed");
 AssertFalse(AfterdeathDoorCompatibility.ShouldAllowInteraction(true, false, false, false), "living Afterdeath spirit unassigned bed");
-Console.WriteLine("PASS: home access override permits only doors and the assigned bed for living Afterdeath spirits on Afterdeath 1.0.11");
+Console.WriteLine("PASS: home access override permits only doors and the assigned bed for living Afterdeath spirits on Afterdeath 1.0.11/1.0.12");
 
 AssertTrue(AfterdeathNearestBedCompatibility.Supports(new Version(1, 0, 11)), "supported Afterdeath nearest-bed version");
 AssertFalse(AfterdeathNearestBedCompatibility.Supports(new Version(1, 0, 9)), "older Afterdeath nearest-bed version");
-AssertFalse(AfterdeathNearestBedCompatibility.Supports(new Version(1, 0, 12)), "newer Afterdeath nearest-bed version");
+AssertFalse(AfterdeathNearestBedCompatibility.Supports(new Version(1, 0, 13)), "newer Afterdeath nearest-bed version");
+AssertTrue(AfterdeathNearestBedCompatibility.Supports(new Version(1, 0, 12)), "updated Afterdeath NearestBed version");
 AssertFalse(AfterdeathNearestBedCompatibility.Supports(null), "missing Afterdeath nearest-bed version");
 AssertTrue(AfterdeathNearestBedCompatibility.ShouldUseBed(true, 0, 0, 100, 0, 25, 0), "closer bed");
 AssertFalse(AfterdeathNearestBedCompatibility.ShouldUseBed(true, 0, 0, 25, 0, 100, 0), "closer Skathi");
@@ -75,8 +82,10 @@ Console.WriteLine("PASS: Afterdeath selects a valid bed only when it is strictly
 AssertTrue(AzuEpiQuickSlotRecoveryCompatibility.Supports(new Version(2, 5, 1)), "supported AzuEPI version");
 AssertFalse(AzuEpiQuickSlotRecoveryCompatibility.Supports(new Version(2, 5, 0)), "older AzuEPI version");
 AssertFalse(AzuEpiQuickSlotRecoveryCompatibility.Supports(new Version(2, 5, 2)), "newer AzuEPI version");
+AssertTrue(AzuEpiQuickSlotRecoveryCompatibility.Supports(new Version(2, 6, 0)), "updated AzuEPI version");
+AssertFalse(AzuEpiQuickSlotRecoveryCompatibility.Supports(new Version(2, 6, 1)), "untested AzuEPI version");
 AssertFalse(AzuEpiQuickSlotRecoveryCompatibility.Supports(null), "missing AzuEPI version");
-Console.WriteLine("PASS: grave quick-slot recovery is restricted to AzuExtendedPlayerInventory 2.5.1");
+Console.WriteLine("PASS: grave quick-slot recovery is restricted to AzuExtendedPlayerInventory 2.5.1/2.6.0");
 
 AssertTrue(EpicLootMagicPluginTakeAllCompatibility.Supports(new Version(0, 14, 11), new Version(2, 2, 1)), "supported Epic Loot and MagicPlugin versions");
 AssertTrue(EpicLootMagicPluginTakeAllCompatibility.Supports(new Version(0, 14, 10), new Version(2, 2, 1)), "older Epic Loot version");
@@ -122,7 +131,7 @@ using (var pe = new PEReader(input))
         .ToArray();
     if (!parameters.SequenceEqual(new[] { "sender", "e" }))
         throw new Exception("Unexpected EpicMMO watcher parameters: " + string.Join(", ", parameters));
-    Console.WriteLine("PASS: EpicMMO 1.9.68 ReadJsonValues(sender, e) patch point verified");
+    Console.WriteLine("PASS: EpicMMO 1.9.68/1.9.70 ReadJsonValues(sender, e) patch point verified");
 }
 
 VerifyMethod(
@@ -131,27 +140,27 @@ VerifyMethod(
     "Utils",
     "IsGhost",
     new[] { "player" },
-    "Afterdeath 1.0.11 Utils.IsGhost(Player) patch contract verified");
+    "Afterdeath 1.0.11/1.0.12 Utils.IsGhost(Player) patch contract verified");
 VerifyMethod(
     args[1],
     "",
     "DisableTeleport",
     "Prefix",
     Array.Empty<string>(),
-    "Afterdeath 1.0.11 DisableTeleport.Prefix() patch contract verified");
+    "Afterdeath 1.0.11/1.0.12 DisableTeleport.Prefix() patch contract verified");
 VerifyMethod(
     args[1],
     "",
     "DisableInteractText",
     "Postfix",
     new[] { "__instance", "hover" },
-    "Afterdeath 1.0.11 DisableInteractText.Postfix(Player, ref GameObject) patch contract verified");
+    "Afterdeath 1.0.11/1.0.12 DisableInteractText.Postfix(Player, ref GameObject) patch contract verified");
 VerifyField(
     args[1],
     "Afterdeath",
     "Afterdeath",
     "ghostStatus",
-    "Afterdeath 1.0.11 ghostStatus field contract verified");
+    "Afterdeath 1.0.11/1.0.12 ghostStatus field contract verified");
 
 VerifyMethod(
     args[1],
@@ -159,7 +168,7 @@ VerifyMethod(
     "Utils",
     "GetClosestLocation",
     new[] { "position" },
-    "Afterdeath 1.0.11 Utils.GetClosestLocation(Vector3) patch contract verified");
+    "Afterdeath 1.0.11/1.0.12 Utils.GetClosestLocation(Vector3) patch contract verified");
 
 VerifyMethod(
     args[2],
@@ -195,14 +204,14 @@ VerifyMethod(
     "API",
     "GetQuickSlotSnapshots",
     new[] { "inv" },
-    "AzuExtendedPlayerInventory 2.5.1 GetQuickSlotSnapshots(Inventory) contract verified");
+    "AzuExtendedPlayerInventory 2.5.1/2.6.0 GetQuickSlotSnapshots(Inventory) contract verified");
 VerifyMethod(
     args[4],
     "AzuEPI",
     "SlotSnapshot",
     "get_GridPos",
     Array.Empty<string>(),
-    "AzuExtendedPlayerInventory 2.5.1 SlotSnapshot.GridPos contract verified");
+    "AzuExtendedPlayerInventory 2.5.1/2.6.0 SlotSnapshot.GridPos contract verified");
 
 VerifyMethod(
     args[5],
