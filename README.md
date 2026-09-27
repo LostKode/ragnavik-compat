@@ -93,3 +93,7 @@ The package has one shared plugin identity, `lostkode.ragnavik.compat`. Version 
 Before updating a mod covered by this package, review its release notes and changelog for an upstream fix or relevant API change. Revalidate the guarded signature and behavior against the exact candidate DLL. Remove or disable the local module when the upstream correction is verified so both fixes never run together.
 
 See [release instructions](docs/RELEASING.md) before producing or publishing a package.
+
+## Coin pouch and traders
+
+With CurrencyPocket 1.0.15 and EpicLoot 0.14.13, EpicLoot counts pouch coins for adventure purchases and spends them before loose coins and registered external inventory providers. Secret stash, gambling, and treasure maps use this balance. Bounty coin rewards and ordinary trader sale proceeds enter the pouch directly; forest, iron, and gold bounty tokens remain separate items. Ordinary trader purchases also spend pouch coins first without charging twice. Unsupported EpicLoot versions disable only the EpicLoot bridge.
