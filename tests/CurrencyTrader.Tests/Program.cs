@@ -1,0 +1,60 @@
+using HarmonyLib;
+using BepInEx.Bootstrap;
+using BepInEx.Logging;
+using RagnavikCompat;
+using EpicLoot_UnityLib;
+using Pocket = CurrencyPocket.MiscFunctions;
+
+int passed = 0;
+void Check(bool ok, string label) { if (!ok) throw new Exception(label); Console.WriteLine("PASS " + label); passed++; }
+void Reset(int pouch, int loose) { Player.m_localPlayer = new(); Player.m_localPlayer.inventory.Coins = loose; Pocket.Balance = pouch; Pocket.FailWrite = false; CurrencyPocket.CurrencyPocket.FailUi = false; }
+Chainloader.PluginInfos["Azumatt.CurrencyPocket"] = new();
+Chainloader.PluginInfos["randyknapp.mods.epicloot"] = new() { Metadata = new() { Version = new(0, 14, 13) } };
+var upstream = new Harmony("test.upstream.currency");
+upstream.Patch(AccessTools.Method(typeof(Inventory), "RemoveItem"), postfix: new HarmonyMethod(typeof(CurrencyPocket.CurrencyPocket.Inventory_RemoveItem_Patch), "Postfix"));
+CurrencyPocketTraderCompatibility.Enable(new ManualLogSource());
+var epic = new InventoryManagement();
+Reset(100, 20);
+Check(epic.CountItem("$item_coins") == 120, "EpicLoot affordability includes pouch exactly once");
+epic.RemoveItem("$item_coins", 80);
+Check(Pocket.Balance == 20 && Player.m_localPlayer.inventory.Coins == 20, "pouch-only purchase preserves loose coins");
+Reset(30, 40); epic.ProviderCoins = 50; epic.RemoveItem("$item_coins", 90);
+Check(Pocket.Balance == 0 && Player.m_localPlayer.inventory.Coins == 0 && epic.ProviderCoins == 30, "mixed payment charges pouch, loose and provider exactly once");
+Reset(0, 40); epic.ProviderCoins = 50; epic.RemoveItem("$item_coins", 60);
+Check(epic.ProviderCoins == 30 && Pocket.Balance == 0, "empty pouch preserves provider shortfall");
+Reset(80, 50); new StoreGui { Price = 30 }.BuySelectedItem();
+Check(Pocket.Balance == 50 && Player.m_localPlayer.inventory.Coins == 50, "vanilla trader does not double charge");
+Reset(10, 50); new StoreGui { Price = 30 }.BuySelectedItem();
+Check(Pocket.Balance == 0 && Player.m_localPlayer.inventory.Coins == 30, "vanilla split payment");
+Reset(100, 0); try { new StoreGui { Throw = true }.BuySelectedItem(); } catch (InvalidOperationException) { }
+Player.m_localPlayer.inventory.Coins = 30;
+Player.m_localPlayer.inventory.RemoveItem("$item_coins", 5);
+Check(Pocket.Balance == 95 && Player.m_localPlayer.inventory.Coins == 25, "exception clears trader scope; unrelated upstream behavior retained");
+Reset(10, 0); Player.m_localPlayer.inventory.Full = true; new StoreGui { Sale = 75 }.SellItem();
+Check(Pocket.Balance == 85 && Player.m_localPlayer.inventory.Coins == 0, "sale deposits directly even with full inventory");
+epic.GiveItem("Coins", 15);
+Check(Pocket.Balance == 100, "bounty coin reward deposits directly");
+epic.Tokens = 5; epic.GiveItem("GoldBountyToken", 3); epic.RemoveItem("GoldBountyToken", 2);
+Check(epic.Tokens == 6 && epic.CountItem("GoldBountyToken") == 6 && Pocket.Balance == 100, "bounty tokens remain separate");
+Reset(int.MaxValue, 0); new StoreGui { Sale = 5 }.SellItem();
+Check(Pocket.Balance == int.MaxValue && Player.m_localPlayer.inventory.Coins == 5, "overflow falls back to normal payout");
+Reset(100, 0); epic.ProviderCoins = 20;
+Check(epic.CountItem("$item_coins") == 120, "provider coins remain visible");
+Pocket.Balance = int.MaxValue;
+Check(epic.CountItem("$item_coins") == int.MaxValue, "affordability count does not overflow");
+Reset(10, 0); CurrencyPocket.CurrencyPocket.FailUi = true; epic.GiveItem("Coins", 20);
+Check(Pocket.Balance == 30 && Player.m_localPlayer.inventory.Coins == 0, "failed UI refresh does not duplicate reward");
+Reset(10, 0); Pocket.FailWrite = true;
+try { epic.RemoveItem("$item_coins", 5); } catch (InvalidOperationException) { }
+Check(Pocket.Balance == 10 && Player.m_localPlayer.inventory.Coins == 0, "failed balance write does not continue debit");
+CurrencyPocketTraderCompatibility.Disable();
+Reset(10, 0);
+Check(epic.CountItem("$item_coins") == epic.ProviderCoins, "unload removes count bridge");
+Chainloader.PluginInfos["randyknapp.mods.epicloot"].Metadata.Version = new(0, 14, 14);
+CurrencyPocketTraderCompatibility.Enable(new ManualLogSource());
+Check(epic.CountItem("$item_coins") == epic.ProviderCoins, "unverified EpicLoot version disables only its bridge");
+new StoreGui { Sale = 10 }.SellItem();
+Check(Pocket.Balance == 20, "vanilla bridge still active without supported EpicLoot");
+CurrencyPocketTraderCompatibility.Disable();
+upstream.UnpatchSelf();
+Console.WriteLine($"{passed} transaction tests passed.");
