@@ -2,6 +2,7 @@
 
 | Version | Changes |
 | --- | --- |
+| 1.0.23 | Revalidate spirit recovery for Afterdeath 1.0.12, grave quick-slot recovery for AzuEPI 2.6.0, and the dedicated-server JSON reload guard for EpicMMO 1.9.70. Retain previously validated versions and publish machine-readable compatibility constraints with the package. |
 | 1.0.22 | Let nearby KG ItemDrawers supply ore and fuel to LazyVikings smelters and blast furnaces. Respect refill settings, capacity, ownership, wards, and leave-one reserves; protect upgraded and custom-data items. |
 | 1.0.21 | Use reusable swamp crypt and OreMines keys directly from carried Smoothbrain backpacks. Preserve correct-key, world-level, and normal door access checks. Consumable keys still require the main inventory. |
 | 1.0.20 | Use pouch gold for EpicLoot adventure purchases, deposit bounty coin rewards and trader sale proceeds into the pouch, and prevent mixed-balance trader double charges. Preserve token currencies and external inventory providers. |

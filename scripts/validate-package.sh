@@ -14,6 +14,7 @@ import zipfile
 archive = Path(sys.argv[1])
 required = {
     "manifest.json",
+    "deployment-compatibility.json",
     "icon.png",
     "README.md",
     "CHANGELOG.md",
@@ -28,6 +29,12 @@ with zipfile.ZipFile(archive) as package:
         raise SystemExit(f"corrupt package entry: {corrupt}")
     names = set(package.namelist())
     import json
+    metadata = json.loads(package.read("deployment-compatibility.json"))
+    manifest = json.loads(package.read("manifest.json"))
+    if metadata.get("schema") != 1 or metadata.get("version") != manifest["version_number"]:
+        raise SystemExit("compatibility metadata does not match package version")
+    if len(metadata.get("constraints", [])) != 3:
+        raise SystemExit("compatibility module constraints missing")
     creatures = json.loads(package.read("config/EpicMMOSystem/Ragnavik_AddedCreatures.json"))
 missing = required - names
 if missing:

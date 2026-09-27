@@ -17,7 +17,7 @@ namespace RagnavikCompat;
 [BepInDependency(CartSignCompatibility.CartsGuid, BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency(CartSignCompatibility.BumperGuid, BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency(DrawerSmelterCompatibility.LazyGuid, BepInDependency.DependencyFlags.SoftDependency)]
-[BepInPlugin(PluginGuid, "Ragnavik Compatibility", "1.0.22")]
+[BepInPlugin(PluginGuid, "Ragnavik Compatibility", "1.0.23")]
 [BepInDependency("WackyMole.EpicMMOSystem", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("org.bepinex.plugins.farming", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("blacks7ar.FloraCollector", BepInDependency.DependencyFlags.SoftDependency)]
