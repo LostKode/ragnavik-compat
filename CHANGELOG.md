@@ -2,6 +2,7 @@
 
 | Version | Changes |
 | --- | --- |
+| 1.0.21 | Use reusable swamp crypt and OreMines keys directly from carried Smoothbrain backpacks. Preserve correct-key, world-level, and normal door access checks. Consumable keys still require the main inventory. |
 | 1.0.20 | Use pouch gold for EpicLoot adventure purchases, deposit bounty coin rewards and trader sale proceeds into the pouch, and prevent mixed-balance trader double charges. Preserve token currencies and external inventory providers. |
 | 1.0.19 | Award normal Foraging XP per item successfully extracted from full or partial Flora Collectors, using the profession XP multiplier. Prevent rewards for failed or empty interactions. |
 | 1.0.18 | Fix CraftyCarts and BoardersBumperBlurbs sign initialization conflicts. Assign the vanilla sign font before activating converted cart text. |

@@ -12,9 +12,11 @@ using UnityEngine.Rendering;
 
 namespace RagnavikCompat;
 
+[BepInDependency(BackpackKeyCompatibility.BackpackGuid, BepInDependency.DependencyFlags.SoftDependency)]
+[BepInDependency("blacks7ar.OreMines", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency(CartSignCompatibility.CartsGuid, BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency(CartSignCompatibility.BumperGuid, BepInDependency.DependencyFlags.SoftDependency)]
-[BepInPlugin(PluginGuid, "Ragnavik Compatibility", "1.0.20")]
+[BepInPlugin(PluginGuid, "Ragnavik Compatibility", "1.0.21")]
 [BepInDependency("WackyMole.EpicMMOSystem", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("org.bepinex.plugins.farming", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("blacks7ar.FloraCollector", BepInDependency.DependencyFlags.SoftDependency)]
@@ -60,6 +62,7 @@ public sealed class RagnavikCompatPlugin : BaseUnityPlugin
     {
         _instance = this;
         _harmony = new Harmony(PluginGuid);
+        BackpackKeyCompatibility.Enable(_harmony, Logger);
         CartSignCompatibility.Enable(_harmony, Logger);
         FarmingXpCompatibility.Enable(_harmony, Logger);
         CollectorForagingCompatibility.Enable(Logger);
@@ -650,6 +653,7 @@ public sealed class RagnavikCompatPlugin : BaseUnityPlugin
 
     private void OnDestroy()
     {
+        BackpackKeyCompatibility.Disable();
         CurrencyPocketTraderCompatibility.Disable();
         CartSignCompatibility.Disable();
         FarmingXpCompatibility.Disable();
