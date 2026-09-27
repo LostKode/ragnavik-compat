@@ -4,6 +4,13 @@ Ragnavik Compatibility contains independently guarded fixes between mods in the 
 
 ## Modules
 
+### Drawer supplies for smelters and blast furnaces
+
+With LazyVikings 1.2.4 and KG ItemDrawers 1.4.0, nearby drawers can supply fuel and accepted ores automatically. Normal chest feeding runs first; drawers supply up to one additional fuel and one ore per eligible one-second refill tick, only while the machine has room. Each machine's LazyVikings enable, automation mode, radius, ward-check setting, and global leave-one setting apply.
+
+Like LazyVikings chest transfers, the player running automation must own the machine and source storage. The bridge does not take ownership of remote drawers. Drawers containing preserved custom-data records or items above quality 1 are excluded. Automatic output collection is unchanged. Other machines are outside this module's scope. Missing mods, unsupported versions, or changed APIs disable only this bridge.
+
+
 ### Flora Collector Foraging XP
 
 For FloraCollector 1.1.4 with Foraging 1.0.11, successful extraction grants one normal Foraging award per item, including partial collectors. Rewards go to the player who collected the items after the owner confirms extraction. Empty, failed, and repeated extraction attempts do not grant XP. This replaces the upstream full-collector interaction reward.

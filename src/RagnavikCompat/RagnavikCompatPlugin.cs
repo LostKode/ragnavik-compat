@@ -14,7 +14,8 @@ namespace RagnavikCompat;
 
 [BepInDependency(CartSignCompatibility.CartsGuid, BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency(CartSignCompatibility.BumperGuid, BepInDependency.DependencyFlags.SoftDependency)]
-[BepInPlugin(PluginGuid, "Ragnavik Compatibility", "1.0.20")]
+[BepInDependency(DrawerSmelterCompatibility.LazyGuid, BepInDependency.DependencyFlags.SoftDependency)]
+[BepInPlugin(PluginGuid, "Ragnavik Compatibility", "1.0.21")]
 [BepInDependency("WackyMole.EpicMMOSystem", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("org.bepinex.plugins.farming", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("blacks7ar.FloraCollector", BepInDependency.DependencyFlags.SoftDependency)]
@@ -72,6 +73,7 @@ public sealed class RagnavikCompatPlugin : BaseUnityPlugin
         EnableCurrencyPocketTakeAllCompatibility();
         CurrencyPocketTraderCompatibility.Enable(Logger);
         EnableItemDrawersCustomDataCompatibility();
+        DrawerSmelterCompatibility.Enable(Logger);
 
         // The server pack is also installed on clients. Never alter their EpicMMO watcher.
         if (SystemInfo.graphicsDeviceType != GraphicsDeviceType.Null)
@@ -652,6 +654,7 @@ public sealed class RagnavikCompatPlugin : BaseUnityPlugin
     {
         CurrencyPocketTraderCompatibility.Disable();
         CartSignCompatibility.Disable();
+        DrawerSmelterCompatibility.Disable();
         FarmingXpCompatibility.Disable();
         CollectorForagingCompatibility.Disable();
         _harmony?.UnpatchSelf();
