@@ -1,3 +1,4 @@
+using HarmonyLib;
 using RagnavikCompat;
 using BepInEx.Bootstrap;
 using BepInEx.Logging;
@@ -13,7 +14,11 @@ ZNetView Drawer(string prefab,int amount,float distance=1){var d=new ZNetView();
 Smelter Reset(){Helper.Timer.Reset();ClientSideV2.Views.Clear();Player.m_localPlayer=new();PrivateArea.Allowed=true;SmelterPatch.ChestFill=false;Plugin._enableSmelter.BoxedValue=Toggle.On;Plugin._smelterAutomation.BoxedValue=Automation.Both;Plugin._leaveOne.BoxedValue=Toggle.Off;Plugin._smelterIgnorePrivateAreaCheck.BoxedValue=Toggle.On;return new();}
 Chainloader.PluginInfos[DrawerSmelterCompatibility.LazyGuid]=new();
 Chainloader.PluginInfos["kg.ItemDrawers"]=new(){Metadata=new(){Version=new(1,4,0)}};
+var upstream = new HarmonyLib.Harmony("tests.lazy.upstream");
+upstream.Patch(HarmonyLib.AccessTools.Method(typeof(Smelter), "UpdateSmelter"), prefix: new HarmonyLib.HarmonyMethod(typeof(SmelterPatch), "UpdateSmelter_Prefix"));
 Enable();
+var actual=Reset();Drawer("Coal",2);Drawer("CopperOre",2);actual.UpdateSmelter();
+Check(actual.Fuel==1&&actual.Queue==1,"bridge runs through an already installed upstream Harmony prefix");
 var m=Reset();var coal=Drawer("Coal",4);var ore=Drawer("CopperOre",4);SmelterPatch.UpdateSmelter_Prefix(m);
 Check(m.Fuel==1&&m.Queue==1&&coal.Zdo.GetInt("Amount")==3&&ore.Zdo.GetInt("Amount")==3,"fuel and ore debited exactly once");
 SmelterPatch.UpdateSmelter_Prefix(m);Check(m.Fuel==1&&m.Queue==1,"upstream one second throttle respected");
@@ -41,4 +46,5 @@ m=Reset();m.ThrowBefore=true;ore=Drawer("CopperOre",2);SmelterPatch.UpdateSmelte
 Enable();m=Reset();m.ThrowAfter=true;ore=Drawer("CopperOre",2);SmelterPatch.UpdateSmelter_Prefix(m);Check(m.Queue==1&&ore.Zdo.GetInt("Amount")==1,"exception after acceptance does not duplicate item");
 Enable();DrawerSmelterCompatibility.Disable();m=Reset();Drawer("CopperOre",2);SmelterPatch.UpdateSmelter_Prefix(m);Check(m.Queue==0,"unload removes patches");
 Chainloader.PluginInfos[DrawerSmelterCompatibility.LazyGuid].Metadata.Version=new(1,2,5);Enable();m=Reset();Drawer("CopperOre",2);SmelterPatch.UpdateSmelter_Prefix(m);Check(m.Queue==0,"unknown upstream version skips bridge");
+upstream.UnpatchSelf();
 Console.WriteLine($"{passed} drawer feeding tests passed.");

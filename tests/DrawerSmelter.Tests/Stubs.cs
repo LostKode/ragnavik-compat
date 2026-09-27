@@ -38,6 +38,7 @@ public class Smelter : UnityEngine.Component {
  public class ItemConversion { public ItemDrop m_from=new(); }
  public List<ItemConversion> m_conversion=new();
  public Smelter(){gameObject.view=new(){Machine=this};m_fuelItem.gameObject.name="Coal";var c=new ItemConversion();c.m_from.gameObject.name="CopperOre";m_conversion.Add(c);}
+ [MethodImpl(MethodImplOptions.NoInlining)] public void UpdateSmelter() { }
  private float GetFuel()=>Fuel; private int GetQueueSize()=>Queue;
  private void RPC_AddFuel(long sender){} private void RPC_AddOre(long sender,string ore,bool cheated){}
 }
@@ -64,7 +65,7 @@ namespace LazyVikings.Patches {
  public static class SmelterPatch {
   public static bool ChestFill;
   [MethodImpl(MethodImplOptions.NoInlining)]
-  public static void UpdateSmelter_Prefix(Smelter machine){if(Utils.Helper.Timer.IsRunning && Utils.Helper.Timer.ElapsedMilliseconds<1000)return;Utils.Helper.Timer.Restart();if(ChestFill){machine.Queue=machine.m_maxOre;machine.Fuel=machine.m_maxFuel;}}
+  public static void UpdateSmelter_Prefix(Smelter __instance){var machine=__instance;if(Utils.Helper.Timer.IsRunning && Utils.Helper.Timer.ElapsedMilliseconds<1000)return;Utils.Helper.Timer.Restart();if(ChestFill){machine.Queue=machine.m_maxOre;machine.Fuel=machine.m_maxFuel;}}
  }
 }
 namespace API { public static class ClientSideV2 { public static List<ZNetView> Views=new();public static List<ZNetView> AllDrawers()=>Views; } }

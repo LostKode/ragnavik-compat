@@ -9,6 +9,11 @@ Ragnavik Compatibility contains independently guarded fixes between mods in the 
 With LazyVikings 1.2.4 and KG ItemDrawers 1.4.0, nearby drawers can supply fuel and accepted ores automatically. Normal chest feeding runs first; drawers supply up to one additional fuel and one ore per eligible one-second refill tick, only while the machine has room. Each machine's LazyVikings enable, automation mode, radius, ward-check setting, and global leave-one setting apply.
 
 Like LazyVikings chest transfers, the player running automation must own the machine and source storage. The bridge does not take ownership of remote drawers. Drawers containing preserved custom-data records or items above quality 1 are excluded. Automatic output collection is unchanged. Other machines are outside this module's scope. Missing mods, unsupported versions, or changed APIs disable only this bridge.
+### Backpack door keys
+
+With Smoothbrain Backpacks 1.3.10, reusable keys in carried backpacks satisfy the normal door interaction check. This includes the swamp crypt key and OreMines 1.2.1 keys for copper, tin, and other mines. The correct key and world level are still required; dropped backpacks and other players' backpacks do not count. Ordinary inventory keys retain priority.
+
+The bridge only extends door key checks. It does not expose backpack contents to crafting or general item use. Doors that consume keys still require those keys in the main inventory. OreMines gates also require main-inventory keys when its **Consumable Keys** setting is on or its version/configuration cannot be verified. This prevents unlocking for free without removing the key. Config changes are checked on each interaction.
 
 
 ### Flora Collector Foraging XP
