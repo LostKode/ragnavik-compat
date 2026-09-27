@@ -4,6 +4,13 @@ Ragnavik Compatibility contains independently guarded fixes between mods in the 
 
 ## Modules
 
+### Backpack door keys
+
+With Smoothbrain Backpacks 1.3.10, reusable keys in carried backpacks satisfy the normal door interaction check. This includes the swamp crypt key and OreMines 1.2.1 keys for copper, tin, and other mines. The correct key and world level are still required; dropped backpacks and other players' backpacks do not count. Ordinary inventory keys retain priority.
+
+The bridge only extends door key checks. It does not expose backpack contents to crafting or general item use. Doors that consume keys still require those keys in the main inventory. OreMines gates also require main-inventory keys when its **Consumable Keys** setting is on or its version/configuration cannot be verified. This prevents unlocking for free without removing the key. Config changes are checked on each interaction.
+
+
 ### Flora Collector Foraging XP
 
 For FloraCollector 1.1.4 with Foraging 1.0.11, successful extraction grants one normal Foraging award per item, including partial collectors. Rewards go to the player who collected the items after the owner confirms extraction. Empty, failed, and repeated extraction attempts do not grant XP. This replaces the upstream full-collector interaction reward.
